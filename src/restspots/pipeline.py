@@ -69,13 +69,29 @@ def _gather_enrichment(cfg: CountryConfig, raw_dir: pathlib.Path):
 
 # ------------------------------------------------------------------------ commands
 def cmd_fetch(args) -> int:
-    from . import overpass
-
     cfg = get_country(args.country, args.config)
     p = _paths(args)
-    query = overpass.build_query(cfg)
-    print(f"[fetch] Overpass query for {cfg.iso} -> {p['raw']}/")
-    overpass.run_overpass(query, cfg.iso, raw_dir=p["raw"], endpoint=args.endpoint)
+
+    if getattr(args, "source", "overpass") == "pbf":
+        from . import pbf
+
+        print(f"[fetch] downloading Geofabrik extract for {cfg.iso} -> {p['raw']}/")
+        dest = pbf.download_extract(cfg, p["raw"])
+        print(f"[fetch] OSM snapshot: {dest}")
+    else:
+        from . import overpass
+
+        mode = f"{len(cfg.regions)} regions" if cfg.regions else "single query"
+        print(f"[fetch] OSM for {cfg.iso} ({mode}) -> {p['raw']}/ via {args.endpoint}")
+        _, data = overpass.fetch_country(
+            cfg,
+            raw_dir=p["raw"],
+            endpoint=args.endpoint,
+            query_timeout=args.query_timeout,
+            read_timeout=args.read_timeout,
+        )
+        print(f"[fetch] OSM snapshot: {len(data.get('elements', []))} elements")
+
     if cfg.enrichment:
         print(f"[fetch] enrichment connectors: {', '.join(cfg.enrichment)}")
         _gather_enrichment(cfg, p["raw"])  # warms the per-source caches
@@ -83,15 +99,38 @@ def cmd_fetch(args) -> int:
     return 0
 
 
+def _load_layers(args, cfg, p):
+    """Return ``(rest, play, snapshot_path, retrieved_at)`` from the chosen source.
+
+    Both sources yield GeoDataFrames with the same ``[tags, type, id, geometry]`` shape,
+    so everything downstream of here is source-agnostic.
+    """
+    if getattr(args, "source", "overpass") == "pbf":
+        from . import pbf
+
+        if getattr(args, "pbf", None):
+            pbf_path = pathlib.Path(args.pbf)
+        else:
+            print(f"[build] ensuring Geofabrik extract for {cfg.iso} (large download)")
+            pbf_path = pbf.download_extract(cfg, p["raw"])
+        print(f"[build] parsing {pbf_path} with pyrosm")
+        rest_raw, play_raw = pbf.extract_from_pbf(pbf_path, cfg)
+        rest = pbf.normalize_pyrosm(rest_raw)
+        play = pbf.normalize_pyrosm(play_raw)
+        retrieved_at = dt.date.fromtimestamp(pbf_path.stat().st_mtime)
+        return rest, play, pbf_path, retrieved_at
+
+    raw_file = _latest_raw(p["raw"], cfg.iso)
+    print(f"[build] reading {raw_file}")
+    gdf = join.to_gdf(json.loads(raw_file.read_text()))
+    rest, play = join.split_features(gdf)
+    return rest, play, raw_file, _snapshot_date(raw_file)
+
+
 def cmd_build(args) -> int:
     cfg = get_country(args.country, args.config)
     p = _paths(args)
-    raw_file = _latest_raw(p["raw"], cfg.iso)
-    print(f"[build] reading {raw_file}")
-    overpass_json = json.loads(raw_file.read_text())
-
-    gdf = join.to_gdf(overpass_json)
-    rest, play = join.split_features(gdf)
+    rest, play, raw_file, retrieved_at = _load_layers(args, cfg, p)
     print(f"[build] {len(rest)} rest stops, {len(play)} playgrounds")
 
     stops = join.attach_playgrounds(
@@ -109,7 +148,6 @@ def cmd_build(args) -> int:
         )
         stops["motorway_ref"] = stops["official_ref"]
 
-    retrieved_at = _snapshot_date(raw_file)
     df = schema.to_canonical(stops, cfg.iso, retrieved_at=retrieved_at)
     gold = schema.attach_geometry(df, stops)
 
@@ -207,17 +245,44 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--interim-dir", default="data/interim")
     parser.add_argument("--processed-dir", default="data/processed")
     parser.add_argument(
-        "--endpoint", default=None, help="Overpass endpoint (defaults to public API)"
+        "--endpoint",
+        default=None,
+        help="Overpass endpoint (default: public API; use 'mirror' for the kumi mirror)",
+    )
+    parser.add_argument(
+        "--query-timeout",
+        type=int,
+        default=300,
+        help="server-side Overpass [timeout:N] in seconds (default: 300)",
+    )
+    parser.add_argument(
+        "--read-timeout",
+        type=int,
+        default=360,
+        help="client HTTP read timeout in seconds; should exceed --query-timeout",
+    )
+    parser.add_argument(
+        "--source",
+        choices=["overpass", "pbf"],
+        default="overpass",
+        help="extraction path: 'overpass' (API, default) or 'pbf' (offline Geofabrik)",
+    )
+    parser.add_argument(
+        "--pbf",
+        default=None,
+        help="path to a specific .osm.pbf for --source pbf (skips the download)",
     )
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    if args.endpoint is None:
-        from .overpass import ENDPOINT
+    from .overpass import ENDPOINT, MIRROR
 
+    if args.endpoint is None:
         args.endpoint = ENDPOINT
+    elif args.endpoint == "mirror":
+        args.endpoint = MIRROR
     return COMMANDS[args.command](args)
 
 

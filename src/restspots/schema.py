@@ -60,6 +60,21 @@ def _tag(tags, key):
     return tags.get(key) if isinstance(tags, dict) else None
 
 
+def _clean(value):
+    """Normalize a cell to ``None`` when it is missing/NaN/blank.
+
+    Needed because pandas fills unmatched join columns with ``float('nan')``, which is
+    truthy — so a plain ``a or b`` fallback would keep the NaN instead of falling through.
+    """
+    if value is None:
+        return None
+    if isinstance(value, float) and pd.isna(value):
+        return None
+    if isinstance(value, str) and not value.strip():
+        return None
+    return value
+
+
 def _truthy(value) -> bool:
     """OSM-style truthiness: present and not an explicit 'no'/'false'/'0'."""
     if value is None:
@@ -95,7 +110,7 @@ def to_canonical(
         tags = row.get("tags") if isinstance(row.get("tags"), dict) else {}
         osm_id = _osm_id(row)
         otype = row.get("type") or "node"
-        name = _tag(tags, "name") or row.get(official_name_col) or None
+        name = _clean(_tag(tags, "name")) or _clean(row.get(official_name_col)) or None
         rec = {
             "id": osm_id,
             "name": name,
@@ -103,10 +118,11 @@ def to_canonical(
             "lat": round(float(cy), 6),
             "lon": round(float(cx), 6),
             "feature_type": _tag(tags, "highway") or "rest_area",
-            "motorway_ref": row.get("motorway_ref") or _tag(tags, "ref"),
+            "motorway_ref": _clean(row.get("motorway_ref"))
+            or _clean(_tag(tags, "ref")),
             "has_playground": bool(row.get("has_playground", True)),
             "playground_count": int(row.get("playground_count", 0) or 0),
-            "match_type": row.get("match_type"),
+            "match_type": _clean(row.get("match_type")),
             "source": "osm",
             "osm_url": f"https://www.openstreetmap.org/{otype}/{row.get('id')}",
             "data_retrieved_at": retrieved_at,

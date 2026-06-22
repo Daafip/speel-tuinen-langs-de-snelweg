@@ -15,7 +15,6 @@ description = "Find highway rest stops with playgrounds and export them for Goog
 readme = "README.md"
 license = {text = "GNU-GPL V3"}
 authors = [
-  { name = "Guy Dupuits"},
   { name = "David Haasnoot"},
 ]
 

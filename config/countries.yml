@@ -20,6 +20,26 @@ DE:
   playground_proximity_m: 200
   playground_contained_buffer_m: 50
   enrichment: [autobahn_api]
+  # Germany is too heavy for a single Overpass query, so fetch per Bundesland
+  # (ISO3166-2) and merge. Each state query is light thanks to the around-playground
+  # pre-filter. Remove `regions` to attempt a single-shot query (e.g. via Path B).
+  regions:
+    - '["ISO3166-2"="DE-BW"]'   # Baden-Württemberg
+    - '["ISO3166-2"="DE-BY"]'   # Bayern
+    - '["ISO3166-2"="DE-BE"]'   # Berlin
+    - '["ISO3166-2"="DE-BB"]'   # Brandenburg
+    - '["ISO3166-2"="DE-HB"]'   # Bremen
+    - '["ISO3166-2"="DE-HH"]'   # Hamburg
+    - '["ISO3166-2"="DE-HE"]'   # Hessen
+    - '["ISO3166-2"="DE-MV"]'   # Mecklenburg-Vorpommern
+    - '["ISO3166-2"="DE-NI"]'   # Niedersachsen
+    - '["ISO3166-2"="DE-NW"]'   # Nordrhein-Westfalen
+    - '["ISO3166-2"="DE-RP"]'   # Rheinland-Pfalz
+    - '["ISO3166-2"="DE-SL"]'   # Saarland
+    - '["ISO3166-2"="DE-SN"]'   # Sachsen
+    - '["ISO3166-2"="DE-ST"]'   # Sachsen-Anhalt
+    - '["ISO3166-2"="DE-SH"]'   # Schleswig-Holstein
+    - '["ISO3166-2"="DE-TH"]'   # Thüringen
 
 NL:
   iso: NL

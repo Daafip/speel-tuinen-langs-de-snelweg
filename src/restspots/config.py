@@ -31,6 +31,10 @@ class CountryConfig(BaseModel):
     playground_proximity_m: float = 200.0
     playground_contained_buffer_m: float = 50.0
     enrichment: list[str] = Field(default_factory=list)
+    # Optional Overpass area selectors to fetch the country in pieces (one query each,
+    # merged into a single snapshot). Large countries exceed the public servers' limits
+    # as a single query, so we split them — e.g. by ISO3166-2 state.
+    regions: list[str] = Field(default_factory=list)
 
 
 def load_countries(path: str | pathlib.Path | None = None) -> dict[str, CountryConfig]:
