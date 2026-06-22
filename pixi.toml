@@ -13,6 +13,14 @@ license-file = "LICENSE"
 install = "pre-commit install"
 pre-commit = "pre-commit run --all-files"
 
+# Data pipeline (default country DE)
+fetch    = "python -m restspots.pipeline fetch    --country DE"
+build    = "python -m restspots.pipeline build    --country DE"
+export   = "python -m restspots.pipeline export   --country DE"
+validate = "python -m restspots.pipeline validate --country DE"
+all      = { depends-on = ["fetch", "build", "export", "validate"] }
+test     = "pytest -q"
+
 [tool.ruff]
 # Ruff configuration, see https://docs.astral.sh/ruff/configuration/
 #lint.ignore = [
@@ -40,6 +48,15 @@ pytest-cov = "*"
 pydantic = ">=2.12.4,<3"
 ruff = ">=0.8.1"
 tqdm = "*"
+# Geospatial pipeline stack (conda-forge installs GDAL/GEOS/PROJ cleanly)
+sqlite = ">=3.53"   # keep in step with libsqlite so GDAL/_sqlite3 find new symbols
+geopandas = "*"
+shapely = "*"
+pyproj = "*"
+requests = "*"
+pyyaml = "*"
+simplekml = "*"
 
 [pypi-dependencies]
-Speeltuinen_langs_snelweg = { path = "src", editable = true }
+restspots = { path = "src", editable = true }
+osm2geojson = "*"   # Overpass JSON -> GeoJSON (pip-only)
