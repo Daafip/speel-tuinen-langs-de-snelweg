@@ -4752,14 +4752,6 @@ packages:
   - pkg:pypi/fastjsonschema?source=hash-mapping
   size: 226259
   timestamp: 1733236073335
-- pypi: ./src
-  name: python-package-template
-  version: 0.0.1
-  sha256: 7b8849710bc3b8c0c00645ebfde6960584de334d9afd36f3f3e73ae58701f0a8
-  requires_dist:
-  - numpy
-  - pydantic
-  editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/python-tzdata-2024.2-pyhd8ed1ab_1.conda
   sha256: 57c9a02ec25926fb48edca59b9ede107823e5d5c473b94a0e05cc0b9a193a642
   md5: c0def296b2f6d2dd7b030c2a7f66bb1f
@@ -5299,6 +5291,14 @@ packages:
   - pkg:pypi/six?source=hash-mapping
   size: 16385
   timestamp: 1733381032766
+- pypi: ./src
+  name: speeltuinen-langs-snelweg
+  version: 0.0.1
+  sha256: e056a5cd535d1cc6f3699cdb506933e6271dafbb5acb025f3ecfd30c3f7e5581
+  requires_dist:
+  - numpy
+  - pydantic
+  editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/sphobjinv-2.3.1.1-pyhd8ed1ab_0.conda
   sha256: 7a5e727b2ee384f5d78596c808ef9fc147a0f3ceedb39dc42b2531d52df2e0d4
   md5: 3503896d50f4e463bb86c77bab85ce07

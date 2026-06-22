@@ -1,7 +1,7 @@
 [workspace]
-name = "Python_package_template"
+name = "Speeltuinen_langs_snelweg"
 version = "0.0.1"
-description = "Python package template"
+description = "Speeltuinen langs de snelweg"
 channels = ["conda-forge"]
 platforms = ["win-64", "linux-64", "osx-64"]
 readme = "README.md"
@@ -15,7 +15,7 @@ install = "pre-commit install"
 # Docs
 quartodoc-build = { cmd = "quartodoc build && rm objects.json", cwd = "docs" ,inputs = [
     "docs/_quarto.yml",
-    "src/Python_package_template",
+    "src/Speeltuinen_langs_snelweg",
     ],outputs = [
     "docs/reference/"
     ]}
@@ -60,4 +60,4 @@ ruff = ">=0.8.1"
 tqdm = "*"
 
 [pypi-dependencies]
-python_package_template = { path = "src", editable = true }
+Speeltuinen_langs_snelweg = { path = "src", editable = true }

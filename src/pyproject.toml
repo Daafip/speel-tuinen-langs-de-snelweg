@@ -3,15 +3,15 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "python_package_template/__init__.py"
+path = "Speeltuinen_langs_snelweg/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["python_package_template"]
+packages = ["Speeltuinen_langs_snelweg"]
 
 [project]
-name = "python_package_template"
+name = "Speeltuinen_langs_snelweg"
 version = "0.0.1"
-description = "Python package template"
+description = "Speeltuinen langs de snelweg"
 readme = "README.md"
 license = {text = "GNU-GPL V3"}
 authors = [
@@ -25,5 +25,5 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://hkv-products-services.github.io/python_package_template"
-Source = "https://github.com/HKV-products-services/python_package_template"
+Documentation = "https://hkv-products-services.github.io/Speeltuinen_langs_snelweg"
+Source = "https://github.com/HKV-products-services/Speeltuinen_langs_snelweg"
