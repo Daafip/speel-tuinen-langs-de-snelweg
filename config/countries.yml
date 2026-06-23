@@ -86,6 +86,21 @@ BE:
     services: Parking
     rest_area: Parking
 
+CH:
+  iso: CH
+  osm_area: '["ISO3166-1"="CH"][admin_level=2]'
+  geofabrik_url: https://download.geofabrik.de/europe/switzerland-latest.osm.pbf
+  stop_tags:
+    highway: [services, rest_area]
+  playground_proximity_m: 200
+  playground_contained_buffer_m: 50
+  enrichment: []   # opendata.swiss / ASTRA could enrich later
+  labels:
+    # CH is multilingual (DE/FR/IT); German terms used here as the majority language.
+    # The regional fallback still appends the locally-spelled town (e.g. "… Lugano").
+    services: Raststätte
+    rest_area: Rastplatz
+
 FR:
   iso: FR
   osm_area: '["ISO3166-1"="FR"][admin_level=2]'
