@@ -13,6 +13,10 @@ from pydantic import BaseModel
 # Family-relevant amenity tags surfaced as booleans in the output.
 AMENITY_TAGS = ["toilets", "restaurant", "fuel", "cafe", "picnic", "wheelchair"]
 
+# Truthful category label for stops that OSM leaves unnamed, so every Maps pin has a
+# title. Keyed by feature_type; the German term matches what the stop actually is.
+FEATURE_LABELS = {"services": "Raststätte", "rest_area": "Rastplatz"}
+
 # Column order of the canonical (gold) dataset.
 CANONICAL_FIELDS = [
     "id",
@@ -68,8 +72,11 @@ def _clean(value):
     """
     if value is None:
         return None
-    if isinstance(value, float) and pd.isna(value):
-        return None
+    try:
+        if pd.isna(value):  # catches float('nan') and pandas NA
+            return None
+    except (TypeError, ValueError):
+        pass  # non-scalar (e.g. dict/list) — not missing
     if isinstance(value, str) and not value.strip():
         return None
     return value
@@ -110,14 +117,20 @@ def to_canonical(
         tags = row.get("tags") if isinstance(row.get("tags"), dict) else {}
         osm_id = _osm_id(row)
         otype = row.get("type") or "node"
-        name = _clean(_tag(tags, "name")) or _clean(row.get(official_name_col)) or None
+        feature_type = _tag(tags, "highway") or "rest_area"
+        # Prefer the OSM name, then an official (enrichment) name, then a category label.
+        name = (
+            _clean(_tag(tags, "name"))
+            or _clean(row.get(official_name_col))
+            or FEATURE_LABELS.get(feature_type, "Rastplatz")
+        )
         rec = {
             "id": osm_id,
             "name": name,
             "country": country,
             "lat": round(float(cy), 6),
             "lon": round(float(cx), 6),
-            "feature_type": _tag(tags, "highway") or "rest_area",
+            "feature_type": feature_type,
             "motorway_ref": _clean(row.get("motorway_ref"))
             or _clean(_tag(tags, "ref")),
             "has_playground": bool(row.get("has_playground", True)),

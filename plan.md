@@ -212,7 +212,9 @@ Etiquette: set a descriptive `User-Agent`, keep a generous `timeout`, and don't 
 
 ### Path B — Geofabrik extract (versioned, offline, scales)
 
-For production and for the eventual all-Europe run, download a dated `.osm.pbf` and parse it locally with `pyrosm`. The file *is* the reproducible snapshot — no rate limits, no API drift.
+For production and for the eventual all-Europe run, download a dated `.osm.pbf` and parse it locally. The file *is* the reproducible snapshot — no rate limits, no API drift.
+
+> **Implementation note (changed from the original plan):** the build uses **`pyosmium`**, not `pyrosm`. `pyrosm` materialises the whole PBF in memory (~25 GB peak for a single German *state*, far more for the country) and crashes on the 4.8 GB Germany extract. `pyosmium` streams the file with a compact node-location index and filters tags in C++, so it parses all of Germany in one pass at ~1–3 GB peak. Tag filtering keeps only `highway=services|rest_area`, `leisure=playground`, and `highway=motorway` (for the nearest-ref fallback).
 
 ```python
 # src/restspots/pbf.py

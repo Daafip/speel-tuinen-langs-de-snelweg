@@ -27,6 +27,7 @@ dependencies = [
   "pyyaml",
   "simplekml",
   "osm2geojson",
+  "osmium",
   "pydantic",
 ]
 

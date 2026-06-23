@@ -1,39 +1,27 @@
 """Path B — Geofabrik ``.osm.pbf`` extract: versioned, offline, scales to all of Europe.
 
-The dated ``.pbf`` *is* the reproducible snapshot — no rate limits, no API drift. We
-import ``pyrosm`` lazily so the rest of the package (and the test suite) does not require
-the heavy offline-parsing stack to be installed.
+The dated ``.pbf`` *is* the reproducible snapshot — no rate limits, no API drift.
+
+Parsing is done with **pyosmium**, which streams the file with a compact node-location
+index. Peak memory stays around ~1 GB for a German state and only a few GB for the whole
+4.8 GB Germany extract — unlike fully-materialising parsers, which need tens of GB. Tag
+filtering happens in C++ (``osmium.filter.KeyFilter``) so only the handful of tagged
+features ever reach Python.
 """
 
 from __future__ import annotations
 
-import json
 import pathlib
 import urllib.request
 
 import geopandas as gpd
-import pandas as pd
 
 from .config import CountryConfig
 
-# pyrosm columns that are metadata, not OSM tags.
-_META_COLS = {
-    "lat",
-    "lon",
-    "visible",
-    "changeset",
-    "timestamp",
-    "version",
-    "geometry",
-    "osm_type",
-    "id",
-    "tags",
-}
+STOP_HIGHWAY = {"services", "rest_area"}
 
 
-def download_extract(
-    cfg: CountryConfig, raw_dir: str | pathlib.Path = "data/raw"
-) -> pathlib.Path:
+def download_extract(cfg: CountryConfig, raw_dir: str | pathlib.Path = "data/raw") -> pathlib.Path:
     """Download the country's Geofabrik extract if not already present; return its path.
 
     The filename carries no date — Geofabrik's ``-latest`` URL is mutable — so record the
@@ -49,64 +37,86 @@ def download_extract(
     return dest
 
 
+def _way_geometry(way):
+    """Build a shapely geometry for a way from its (located) nodes; None if unusable."""
+    from shapely.geometry import LineString, Point, Polygon
+
+    coords = [(n.location.lon, n.location.lat) for n in way.nodes if n.location.valid()]
+    if len(coords) >= 4 and coords[0] == coords[-1]:
+        return Polygon(coords)
+    if len(coords) >= 2:
+        return LineString(coords)
+    if coords:
+        return Point(coords[0])
+    return None
+
+
 def extract_from_pbf(pbf_path: str | pathlib.Path, cfg: CountryConfig):
-    """Parse rest stops and playgrounds out of a ``.pbf`` with pyrosm.
+    """Stream a ``.pbf`` and return ``(rest, play, motorways)`` GeoDataFrames (WGS84).
 
-    Returns ``(rest, play)`` as raw pyrosm GeoDataFrames; pass each through
-    :func:`normalize_pyrosm` to get the source-agnostic shape used downstream.
+    ``rest`` / ``play`` have columns ``[tags, type, id, geometry]`` — identical to the
+    Overpass path's output, so everything downstream is source-agnostic. ``motorways`` is
+    ``[ref, geometry]`` for ``highway=motorway`` ways carrying a ``ref``; it feeds the
+    country-agnostic nearest-motorway fallback for stops without an official ref. Nodes
+    and ways are captured; relations (rare for these tags) are skipped.
     """
-    from pyrosm import OSM  # lazy: optional heavy dependency
+    import osmium
+    from shapely.geometry import Point
 
-    osm = OSM(str(pbf_path))
-    highway_values = cfg.stop_tags.get("highway", ["services", "rest_area"])
-    rest = osm.get_data_by_custom_criteria(
-        custom_filter={"highway": list(highway_values)},
-        filter_type="keep",
-        keep_nodes=True,
-        keep_ways=True,
-        keep_relations=True,
+    highway_values = set(cfg.stop_tags.get("highway", list(STOP_HIGHWAY)))
+    rest_rows: list[dict] = []
+    play_rows: list[dict] = []
+    motorway_rows: list[dict] = []
+
+    fp = (
+        osmium.FileProcessor(str(pbf_path))
+        .with_locations()
+        .with_filter(osmium.filter.KeyFilter("highway", "leisure"))
     )
-    play = osm.get_data_by_custom_criteria(
-        custom_filter={"leisure": ["playground"]},
-        filter_type="keep",
-        keep_nodes=True,
-        keep_ways=True,
-        keep_relations=True,
-    )
-    return rest, play
+    for obj in fp:
+        tags = dict(obj.tags)
+        highway = tags.get("highway")
 
-
-def _row_tags(row, promoted: list[str]) -> dict:
-    """Reconstruct a single OSM tag dict from pyrosm's promoted columns + ``tags`` JSON."""
-    tags: dict = {}
-    raw = row.get("tags")
-    if isinstance(raw, str):
-        try:
-            tags.update(json.loads(raw))
-        except (ValueError, TypeError):
-            pass
-    elif isinstance(raw, dict):
-        tags.update(raw)
-    for key in promoted:
-        val = row.get(key)
-        if val is None or (isinstance(val, float) and pd.isna(val)):
+        # Motorway centrelines (ways) for the nearest-ref fallback.
+        if highway == "motorway" and obj.is_way():
+            ref = tags.get("ref")
+            geom = _way_geometry(obj) if ref else None
+            if ref and geom is not None:
+                motorway_rows.append({"ref": ref.replace(" ", ""), "geometry": geom})
             continue
-        tags[key] = val
-    return tags
 
-
-def normalize_pyrosm(gdf) -> gpd.GeoDataFrame:
-    """Reshape a pyrosm GeoDataFrame to the ``[tags, type, id, geometry]`` shape that
-    :mod:`restspots.join` / :mod:`restspots.schema` expect (matching the Overpass path).
-    """
-    if gdf is None or len(gdf) == 0:
-        return gpd.GeoDataFrame(
-            {"tags": [], "type": [], "id": []}, geometry=[], crs=4326
+        is_stop = highway in highway_values
+        is_play = tags.get("leisure") == "playground"
+        if not (is_stop or is_play):
+            continue
+        if obj.is_node():
+            geom = Point(obj.location.lon, obj.location.lat)
+            otype = "node"
+        elif obj.is_way():
+            geom = _way_geometry(obj)
+            otype = "way"
+        else:
+            continue
+        if geom is None:
+            continue
+        (rest_rows if is_stop else play_rows).append(
+            {"tags": tags, "type": otype, "id": obj.id, "geometry": geom}
         )
-    promoted = [c for c in gdf.columns if c not in _META_COLS]
-    tags = [_row_tags(row, promoted) for _, row in gdf.iterrows()]
-    return gpd.GeoDataFrame(
-        {"tags": tags, "type": gdf["osm_type"].to_numpy(), "id": gdf["id"].to_numpy()},
-        geometry=gdf.geometry.to_numpy(),
-        crs=gdf.crs or 4326,
+
+    motorways = (
+        _to_gdf(motorway_rows)
+        if not motorway_rows
+        else gpd.GeoDataFrame(
+            {"ref": [r["ref"] for r in motorway_rows]},
+            geometry=[r["geometry"] for r in motorway_rows],
+            crs=4326,
+        )
     )
+    return _to_gdf(rest_rows), _to_gdf(play_rows), motorways
+
+
+def _to_gdf(rows: list[dict]) -> gpd.GeoDataFrame:
+    if not rows:
+        return gpd.GeoDataFrame({"tags": [], "type": [], "id": []}, geometry=[], crs=4326)
+    geoms = [r.pop("geometry") for r in rows]
+    return gpd.GeoDataFrame(rows, geometry=geoms, crs=4326)

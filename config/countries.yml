@@ -20,6 +20,8 @@ DE:
   playground_proximity_m: 200
   playground_contained_buffer_m: 50
   enrichment: [autobahn_api]
+  # Path B (recommended for DE): pyosmium streams the single 4.8 GB Germany .pbf in one
+  # low-memory pass — no need to split it. Run: `... build --country DE --source pbf`.
   # Germany is too heavy for a single Overpass query, so fetch per Bundesland
   # (ISO3166-2) and merge. Each state query is light thanks to the around-playground
   # pre-filter. Remove `regions` to attempt a single-shot query (e.g. via Path B).

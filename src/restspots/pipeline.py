@@ -100,10 +100,11 @@ def cmd_fetch(args) -> int:
 
 
 def _load_layers(args, cfg, p):
-    """Return ``(rest, play, snapshot_path, retrieved_at)`` from the chosen source.
+    """Return ``(rest, play, motorways, snapshot_path, retrieved_at)`` from the source.
 
-    Both sources yield GeoDataFrames with the same ``[tags, type, id, geometry]`` shape,
-    so everything downstream of here is source-agnostic.
+    Both sources yield rest/play GeoDataFrames with the same ``[tags, type, id, geometry]``
+    shape, so everything downstream is source-agnostic. ``motorways`` (a ``[ref, geometry]``
+    GeoDataFrame) is only available from Path B; it is ``None`` for the Overpass path.
     """
     if getattr(args, "source", "overpass") == "pbf":
         from . import pbf
@@ -113,24 +114,21 @@ def _load_layers(args, cfg, p):
         else:
             print(f"[build] ensuring Geofabrik extract for {cfg.iso} (large download)")
             pbf_path = pbf.download_extract(cfg, p["raw"])
-        print(f"[build] parsing {pbf_path} with pyrosm")
-        rest_raw, play_raw = pbf.extract_from_pbf(pbf_path, cfg)
-        rest = pbf.normalize_pyrosm(rest_raw)
-        play = pbf.normalize_pyrosm(play_raw)
-        retrieved_at = dt.date.fromtimestamp(pbf_path.stat().st_mtime)
-        return rest, play, pbf_path, retrieved_at
+        print(f"[build] streaming {pbf_path} with pyosmium")
+        rest, play, motorways = pbf.extract_from_pbf(pbf_path, cfg)
+        return rest, play, motorways, pbf_path, dt.date.today()
 
     raw_file = _latest_raw(p["raw"], cfg.iso)
     print(f"[build] reading {raw_file}")
     gdf = join.to_gdf(json.loads(raw_file.read_text()))
     rest, play = join.split_features(gdf)
-    return rest, play, raw_file, _snapshot_date(raw_file)
+    return rest, play, None, raw_file, _snapshot_date(raw_file)
 
 
 def cmd_build(args) -> int:
     cfg = get_country(args.country, args.config)
     p = _paths(args)
-    rest, play, raw_file, retrieved_at = _load_layers(args, cfg, p)
+    rest, play, motorways, raw_file, retrieved_at = _load_layers(args, cfg, p)
     print(f"[build] {len(rest)} rest stops, {len(play)} playgrounds")
 
     stops = join.attach_playgrounds(
@@ -141,12 +139,26 @@ def cmd_build(args) -> int:
     )
     print(f"[build] {len(stops)} stops with a playground")
 
-    points = _gather_enrichment(cfg, p["raw"]) if cfg.enrichment else None
-    if points is not None and len(stops):
-        stops = join.attach_nearest(
-            stops, points, ["official_name", "official_ref"], 300.0
-        )
-        stops["motorway_ref"] = stops["official_ref"]
+    if len(stops):
+        import pandas as pd
+
+        ref = pd.Series(pd.NA, index=stops.index, dtype=object)
+        # 1) official ref from a national connector (e.g. Autobahn parking_lorry).
+        points = _gather_enrichment(cfg, p["raw"]) if cfg.enrichment else None
+        if points is not None:
+            stops = join.attach_nearest(
+                stops, points, ["official_name", "official_ref"], 300.0
+            )
+            ref = ref.fillna(stops["official_ref"])
+        # 2) fallback: ref of the nearest OSM motorway centreline (country-agnostic).
+        if motorways is not None and len(motorways):
+            stops = join.attach_nearest(
+                stops, motorways[["ref", "geometry"]], ["ref"], 300.0, suffix="_osm"
+            )
+            ref = ref.fillna(stops["ref_osm"])
+            n_filled = int(stops["ref_osm"].notna().sum())
+            print(f"[build] nearest-motorway ref filled for {n_filled} stops")
+        stops["motorway_ref"] = ref
 
     df = schema.to_canonical(stops, cfg.iso, retrieved_at=retrieved_at)
     gold = schema.attach_geometry(df, stops)

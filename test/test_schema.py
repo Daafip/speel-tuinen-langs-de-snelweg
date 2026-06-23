@@ -6,6 +6,18 @@ from shapely.geometry import Point
 from restspots.schema import CANONICAL_FIELDS, attach_geometry, to_canonical
 
 
+def test_unnamed_stop_gets_category_label():
+    gdf = gpd.GeoDataFrame(
+        {"tags": [{"highway": "rest_area"}, {"highway": "services"}], "type": ["node", "node"], "id": [1, 2]},
+        geometry=[Point(8.0, 50.0), Point(9.0, 51.0)],
+        crs=4326,
+    )
+    df = to_canonical(gdf, "DE")
+    names = dict(zip(df["feature_type"], df["name"]))
+    assert names["rest_area"] == "Rastplatz"
+    assert names["services"] == "Raststätte"
+
+
 def _joined():
     return gpd.GeoDataFrame(
         {
