@@ -23,7 +23,9 @@ STOP_HIGHWAY = {"services", "rest_area"}
 PLACE_TYPES = {"city", "town", "village", "suburb", "hamlet", "borough", "municipality"}
 
 
-def download_extract(cfg: CountryConfig, raw_dir: str | pathlib.Path = "data/raw") -> pathlib.Path:
+def download_extract(
+    cfg: CountryConfig, raw_dir: str | pathlib.Path = "data/raw"
+) -> pathlib.Path:
     """Download the country's Geofabrik extract if not already present; return its path.
 
     The filename carries no date — Geofabrik's ``-latest`` URL is mutable — so record the
@@ -85,7 +87,10 @@ def extract_from_pbf(pbf_path: str | pathlib.Path, cfg: CountryConfig):
             name = tags.get("name")
             if name:
                 place_rows.append(
-                    {"place_name": name, "geometry": Point(obj.location.lon, obj.location.lat)}
+                    {
+                        "place_name": name,
+                        "geometry": Point(obj.location.lon, obj.location.lat),
+                    }
                 )
             continue
 
@@ -122,7 +127,9 @@ def extract_from_pbf(pbf_path: str | pathlib.Path, cfg: CountryConfig):
 
 def _to_gdf(rows: list[dict]) -> gpd.GeoDataFrame:
     if not rows:
-        return gpd.GeoDataFrame({"tags": [], "type": [], "id": []}, geometry=[], crs=4326)
+        return gpd.GeoDataFrame(
+            {"tags": [], "type": [], "id": []}, geometry=[], crs=4326
+        )
     geoms = [r.pop("geometry") for r in rows]
     return gpd.GeoDataFrame(rows, geometry=geoms, crs=4326)
 

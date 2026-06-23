@@ -43,8 +43,18 @@ def test_way_geometry_skips_invalid_nodes():
 
 def test_to_gdf_shape_and_crs():
     rows = [
-        {"tags": {"highway": "services"}, "type": "node", "id": 1, "geometry": Point(8, 53)},
-        {"tags": {"leisure": "playground"}, "type": "way", "id": 2, "geometry": Point(9, 54)},
+        {
+            "tags": {"highway": "services"},
+            "type": "node",
+            "id": 1,
+            "geometry": Point(8, 53),
+        },
+        {
+            "tags": {"leisure": "playground"},
+            "type": "way",
+            "id": 2,
+            "geometry": Point(9, 54),
+        },
     ]
     gdf = _to_gdf(rows)
     assert isinstance(gdf, gpd.GeoDataFrame)

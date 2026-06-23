@@ -27,7 +27,10 @@ def test_build_query_uses_area_override():
 
 
 def test_run_overpass_raises_on_timeout_remark(tmp_path, monkeypatch):
-    payload = {"elements": [], "remark": 'runtime error: Query timed out in "query" after 180 s'}
+    payload = {
+        "elements": [],
+        "remark": 'runtime error: Query timed out in "query" after 180 s',
+    }
     monkeypatch.setattr(overpass.requests, "post", lambda *a, **k: _FakeResp(payload))
     with pytest.raises(RuntimeError, match="Overpass query failed"):
         overpass.run_overpass("[out:json];", "XX", raw_dir=tmp_path)
