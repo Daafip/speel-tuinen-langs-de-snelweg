@@ -17,6 +17,10 @@ COUNTRY_BBOX = {
     "BE": (2.5, 49.5, 6.4, 51.5),
     "FR": (-5.3, 41.3, 9.7, 51.1),  # metropolitan France incl. Corsica
     "CH": (5.9, 45.8, 10.5, 47.8),
+    "GB": (-8.7, 49.8, 1.9, 60.9),  # Great Britain (NI omitted)
+    "DK": (7.9, 54.5, 15.3, 57.8),
+    "ES": (-18.3, 27.5, 4.4, 43.9),  # incl. Canary & Balearic islands
+    "IT": (6.6, 35.4, 18.6, 47.1),  # incl. Sicily & Sardinia
 }
 
 

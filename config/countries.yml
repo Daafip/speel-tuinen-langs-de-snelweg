@@ -113,3 +113,63 @@ FR:
   labels:
     services: Aire de service
     rest_area: Aire de repos
+
+# --- M7: multi-country breadth (expansion_plans_UK_DK_ES_IT.md) ---------------
+GB:
+  iso: GB
+  osm_area: '["ISO3166-1"="GB"][admin_level=2]'
+  # Path B note: Geofabrik has no single UK extract. We use great-britain
+  # (England/Scotland/Wales); Northern Ireland lives in the ireland extract and would
+  # need boundary-clipping to avoid pulling in the Republic of Ireland — omitted for now.
+  geofabrik_url: https://download.geofabrik.de/europe/great-britain-latest.osm.pbf
+  stop_tags:
+    highway: [services, rest_area]
+  ref_road_tags: [motorway, trunk]   # UK MSAs often sit on trunk A-roads
+  playground_proximity_m: 200
+  playground_contained_buffer_m: 50
+  enrichment: []   # National Highways SRN refs (England only) could enrich later
+  labels:
+    services: Services
+    rest_area: Rest area
+
+DK:
+  iso: DK
+  osm_area: '["ISO3166-1"="DK"][admin_level=2]'
+  geofabrik_url: https://download.geofabrik.de/europe/denmark-latest.osm.pbf
+  stop_tags:
+    highway: [services, rest_area]
+  ref_road_tags: [motorway, trunk]
+  playground_proximity_m: 200
+  playground_contained_buffer_m: 50
+  enrichment: []   # Vejdirektoratet list/Datafordeler could enrich later
+  labels:
+    services: Serviceanlæg
+    rest_area: Rasteplads
+
+ES:
+  iso: ES
+  osm_area: '["ISO3166-1"="ES"][admin_level=2]'
+  geofabrik_url: https://download.geofabrik.de/europe/spain-latest.osm.pbf
+  stop_tags:
+    highway: [services, rest_area]
+  ref_road_tags: [motorway, trunk]
+  playground_proximity_m: 200
+  playground_contained_buffer_m: 50
+  enrichment: []   # IGN IGR-RT geometry / MITMS lists could enrich later
+  labels:
+    services: Área de servicio
+    rest_area: Área de descanso
+
+IT:
+  iso: IT
+  osm_area: '["ISO3166-1"="IT"][admin_level=2]'
+  geofabrik_url: https://download.geofabrik.de/europe/italy-latest.osm.pbf
+  stop_tags:
+    highway: [services, rest_area]
+  ref_road_tags: [motorway, trunk]   # ANAS strade statali also carry rest stops
+  playground_proximity_m: 200
+  playground_contained_buffer_m: 50
+  enrichment: []   # ANAS grafo / ART could enrich later
+  labels:
+    services: Area di servizio
+    rest_area: Area di sosta

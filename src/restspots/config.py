@@ -39,6 +39,9 @@ class CountryConfig(BaseModel):
     # "Verzorgingsplaats", DE "Rastplatz"/"Raststätte"). Combined with the nearest place
     # name to form a regional label like "Verzorgingsplaats Apeldoorn".
     labels: dict[str, str] = Field(default_factory=dict)
+    # OSM highway classes whose `ref` is used for the nearest-road fallback. Many stops
+    # (UK/IT/ES especially) sit on trunk roads, not just motorways.
+    ref_road_tags: list[str] = Field(default_factory=lambda: ["motorway"])
 
 
 def load_countries(path: str | pathlib.Path | None = None) -> dict[str, CountryConfig]:

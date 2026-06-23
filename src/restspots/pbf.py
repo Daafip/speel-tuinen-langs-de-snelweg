@@ -68,6 +68,7 @@ def extract_from_pbf(pbf_path: str | pathlib.Path, cfg: CountryConfig):
     from shapely.geometry import Point
 
     highway_values = set(cfg.stop_tags.get("highway", list(STOP_HIGHWAY)))
+    ref_road_values = set(cfg.ref_road_tags or ["motorway"])
     rest_rows: list[dict] = []
     play_rows: list[dict] = []
     motorway_rows: list[dict] = []
@@ -94,8 +95,8 @@ def extract_from_pbf(pbf_path: str | pathlib.Path, cfg: CountryConfig):
                 )
             continue
 
-        # Motorway centrelines (ways) for the nearest-ref fallback.
-        if highway == "motorway" and obj.is_way():
+        # Road centrelines (ways) carrying a ref, for the nearest-ref fallback.
+        if highway in ref_road_values and obj.is_way():
             ref = tags.get("ref")
             geom = _way_geometry(obj) if ref else None
             if ref and geom is not None:
