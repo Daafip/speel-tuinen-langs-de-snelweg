@@ -100,11 +100,12 @@ def cmd_fetch(args) -> int:
 
 
 def _load_layers(args, cfg, p):
-    """Return ``(rest, play, motorways, snapshot_path, retrieved_at)`` from the source.
+    """Return ``(rest, play, motorways, places, snapshot_path, retrieved_at)``.
 
     Both sources yield rest/play GeoDataFrames with the same ``[tags, type, id, geometry]``
-    shape, so everything downstream is source-agnostic. ``motorways`` (a ``[ref, geometry]``
-    GeoDataFrame) is only available from Path B; it is ``None`` for the Overpass path.
+    shape, so everything downstream is source-agnostic. ``motorways`` and ``places`` are
+    only available from Path B (used for ref/regional-name fallbacks); both are ``None``
+    for the Overpass path.
     """
     if getattr(args, "source", "overpass") == "pbf":
         from . import pbf
@@ -115,20 +116,20 @@ def _load_layers(args, cfg, p):
             print(f"[build] ensuring Geofabrik extract for {cfg.iso} (large download)")
             pbf_path = pbf.download_extract(cfg, p["raw"])
         print(f"[build] streaming {pbf_path} with pyosmium")
-        rest, play, motorways = pbf.extract_from_pbf(pbf_path, cfg)
-        return rest, play, motorways, pbf_path, dt.date.today()
+        rest, play, motorways, places = pbf.extract_from_pbf(pbf_path, cfg)
+        return rest, play, motorways, places, pbf_path, dt.date.today()
 
     raw_file = _latest_raw(p["raw"], cfg.iso)
     print(f"[build] reading {raw_file}")
     gdf = join.to_gdf(json.loads(raw_file.read_text()))
     rest, play = join.split_features(gdf)
-    return rest, play, None, raw_file, _snapshot_date(raw_file)
+    return rest, play, None, None, raw_file, _snapshot_date(raw_file)
 
 
 def cmd_build(args) -> int:
     cfg = get_country(args.country, args.config)
     p = _paths(args)
-    rest, play, motorways, raw_file, retrieved_at = _load_layers(args, cfg, p)
+    rest, play, motorways, places, raw_file, retrieved_at = _load_layers(args, cfg, p)
     print(f"[build] {len(rest)} rest stops, {len(play)} playgrounds")
 
     stops = join.attach_playgrounds(
@@ -160,7 +161,15 @@ def cmd_build(args) -> int:
             print(f"[build] nearest-motorway ref filled for {n_filled} stops")
         stops["motorway_ref"] = ref
 
-    df = schema.to_canonical(stops, cfg.iso, retrieved_at=retrieved_at)
+        # Regional name for stops OSM leaves unnamed: the nearest settlement (within 15 km).
+        if places is not None and len(places):
+            stops = join.attach_nearest(
+                stops, places[["place_name", "geometry"]], ["place_name"], 15000.0
+            )
+
+    df = schema.to_canonical(
+        stops, cfg.iso, retrieved_at=retrieved_at, labels=cfg.labels
+    )
     gold = schema.attach_geometry(df, stops)
 
     # silver (per-source) and gold (final) outputs.

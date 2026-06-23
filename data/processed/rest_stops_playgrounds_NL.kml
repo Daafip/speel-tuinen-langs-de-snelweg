@@ -2,7 +2,7 @@
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
     <Document id="1">
         <Placemark id="3">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats West</name>
             <description>Motorway: A10
 Playgrounds: 2
 Type: rest_area
@@ -13,7 +13,7 @@ https://www.openstreetmap.org/node/11536092006</description>
             </Point>
         </Placemark>
         <Placemark id="5">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Tuute</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: rest_area
@@ -24,7 +24,7 @@ https://www.openstreetmap.org/node/11918120669</description>
             </Point>
         </Placemark>
         <Placemark id="7">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Froombosch</name>
             <description>Motorway: ?
 Playgrounds: 2
 Type: rest_area
@@ -35,7 +35,7 @@ https://www.openstreetmap.org/node/1249147578</description>
             </Point>
         </Placemark>
         <Placemark id="9">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Westmaas</name>
             <description>Motorway: ?
 Playgrounds: 2
 Type: rest_area
@@ -46,7 +46,7 @@ https://www.openstreetmap.org/node/4333903489</description>
             </Point>
         </Placemark>
         <Placemark id="11">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Centrum</name>
             <description>Motorway: ?
 Playgrounds: 2
 Type: rest_area
@@ -57,7 +57,7 @@ https://www.openstreetmap.org/node/4358032489</description>
             </Point>
         </Placemark>
         <Placemark id="13">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Bergen op Zoom</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: rest_area
@@ -68,7 +68,7 @@ https://www.openstreetmap.org/node/4366763392</description>
             </Point>
         </Placemark>
         <Placemark id="15">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Oud-Beijerland</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: rest_area
@@ -79,7 +79,7 @@ https://www.openstreetmap.org/node/4460262411</description>
             </Point>
         </Placemark>
         <Placemark id="17">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Velp</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: rest_area
@@ -90,7 +90,7 @@ https://www.openstreetmap.org/node/4536408090</description>
             </Point>
         </Placemark>
         <Placemark id="19">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Segbroek</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: rest_area
@@ -101,7 +101,7 @@ https://www.openstreetmap.org/node/4593001605</description>
             </Point>
         </Placemark>
         <Placemark id="21">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Naaldwijk</name>
             <description>Motorway: ?
 Playgrounds: 2
 Type: rest_area
@@ -112,7 +112,7 @@ https://www.openstreetmap.org/node/4593303589</description>
             </Point>
         </Placemark>
         <Placemark id="23">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Monster</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: rest_area
@@ -123,7 +123,7 @@ https://www.openstreetmap.org/node/4594180296</description>
             </Point>
         </Placemark>
         <Placemark id="25">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Ter Heijde</name>
             <description>Motorway: ?
 Playgrounds: 2
 Type: rest_area
@@ -134,7 +134,7 @@ https://www.openstreetmap.org/node/4594468789</description>
             </Point>
         </Placemark>
         <Placemark id="27">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Naaldwijk</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: rest_area
@@ -145,7 +145,7 @@ https://www.openstreetmap.org/node/4595112491</description>
             </Point>
         </Placemark>
         <Placemark id="29">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Brielle</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: rest_area
@@ -156,7 +156,7 @@ https://www.openstreetmap.org/node/4829411222</description>
             </Point>
         </Placemark>
         <Placemark id="31">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Oudewater</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: rest_area
@@ -167,7 +167,7 @@ https://www.openstreetmap.org/node/5037131222</description>
             </Point>
         </Placemark>
         <Placemark id="33">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Utrecht</name>
             <description>Motorway: ?
 Playgrounds: 2
 Type: rest_area
@@ -178,7 +178,7 @@ https://www.openstreetmap.org/node/5203100424</description>
             </Point>
         </Placemark>
         <Placemark id="35">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Vijfhuizen</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: rest_area
@@ -189,7 +189,7 @@ https://www.openstreetmap.org/node/5508116523</description>
             </Point>
         </Placemark>
         <Placemark id="37">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Jisp</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: rest_area
@@ -200,7 +200,7 @@ https://www.openstreetmap.org/node/5811976756</description>
             </Point>
         </Placemark>
         <Placemark id="39">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Werendijke</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: rest_area
@@ -211,7 +211,7 @@ https://www.openstreetmap.org/node/6703448885</description>
             </Point>
         </Placemark>
         <Placemark id="41">
-            <name>Rastplatz</name>
+            <name>Verzorgingsplaats Kinderdijk</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: rest_area

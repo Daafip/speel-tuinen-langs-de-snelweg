@@ -6,16 +6,34 @@ from shapely.geometry import Point
 from restspots.schema import CANONICAL_FIELDS, attach_geometry, to_canonical
 
 
-def test_unnamed_stop_gets_category_label():
+def test_unnamed_stop_gets_regional_name():
     gdf = gpd.GeoDataFrame(
-        {"tags": [{"highway": "rest_area"}, {"highway": "services"}], "type": ["node", "node"], "id": [1, 2]},
-        geometry=[Point(8.0, 50.0), Point(9.0, 51.0)],
+        {
+            "tags": [{"highway": "rest_area"}, {"highway": "rest_area"}],
+            "type": ["node", "node"],
+            "id": [1, 2],
+            "place_name": ["Apeldoorn", None],  # one near a place, one not
+        },
+        geometry=[Point(5.9, 52.2), Point(6.0, 52.3)],
         crs=4326,
     )
-    df = to_canonical(gdf, "DE")
-    names = dict(zip(df["feature_type"], df["name"]))
-    assert names["rest_area"] == "Rastplatz"
-    assert names["services"] == "Raststätte"
+    labels = {"rest_area": "Verzorgingsplaats"}
+    df = to_canonical(gdf, "NL", labels=labels).sort_values("id").reset_index(drop=True)
+    # Regional name when a place is nearby; plain localized term otherwise.
+    assert df.iloc[0]["name"] == "Verzorgingsplaats Apeldoorn"
+    assert df.iloc[1]["name"] == "Verzorgingsplaats"
+    # Never the German term for a Dutch stop.
+    assert "Rastplatz" not in set(df["name"])
+
+
+def test_unnamed_stop_default_label_when_no_config():
+    gdf = gpd.GeoDataFrame(
+        {"tags": [{"highway": "services"}], "type": ["node"], "id": [1]},
+        geometry=[Point(9.0, 51.0)],
+        crs=4326,
+    )
+    df = to_canonical(gdf, "XX")
+    assert df.iloc[0]["name"] == "Services"
 
 
 def _joined():

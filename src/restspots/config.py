@@ -35,6 +35,10 @@ class CountryConfig(BaseModel):
     # merged into a single snapshot). Large countries exceed the public servers' limits
     # as a single query, so we split them — e.g. by ISO3166-2 state.
     regions: list[str] = Field(default_factory=list)
+    # Localized term per feature_type for stops OSM leaves unnamed (e.g. NL uses
+    # "Verzorgingsplaats", DE "Rastplatz"/"Raststätte"). Combined with the nearest place
+    # name to form a regional label like "Verzorgingsplaats Apeldoorn".
+    labels: dict[str, str] = Field(default_factory=dict)
 
 
 def load_countries(path: str | pathlib.Path | None = None) -> dict[str, CountryConfig]:

@@ -20,6 +20,9 @@ DE:
   playground_proximity_m: 200
   playground_contained_buffer_m: 50
   enrichment: [autobahn_api]
+  labels:
+    services: Raststätte
+    rest_area: Rastplatz
   # Path B (recommended for DE): pyosmium streams the single 4.8 GB Germany .pbf in one
   # low-memory pass — no need to split it. Run: `... build --country DE --source pbf`.
   # Germany is too heavy for a single Overpass query, so fetch per Bundesland
@@ -52,6 +55,9 @@ NL:
   playground_proximity_m: 200
   playground_contained_buffer_m: 50
   enrichment: []   # OSM core works now; RWS/NDW connector added in a later phase
+  labels:
+    services: Verzorgingsplaats
+    rest_area: Verzorgingsplaats
 
 AT:
   iso: AT
@@ -62,3 +68,6 @@ AT:
   playground_proximity_m: 200
   playground_contained_buffer_m: 50
   enrichment: []
+  labels:
+    services: Raststation
+    rest_area: Rastplatz

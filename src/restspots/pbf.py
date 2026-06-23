@@ -19,6 +19,8 @@ import geopandas as gpd
 from .config import CountryConfig
 
 STOP_HIGHWAY = {"services", "rest_area"}
+# Settlement types used to give an unnamed stop a regional name (nearest place).
+PLACE_TYPES = {"city", "town", "village", "suburb", "hamlet", "borough", "municipality"}
 
 
 def download_extract(cfg: CountryConfig, raw_dir: str | pathlib.Path = "data/raw") -> pathlib.Path:
@@ -52,13 +54,13 @@ def _way_geometry(way):
 
 
 def extract_from_pbf(pbf_path: str | pathlib.Path, cfg: CountryConfig):
-    """Stream a ``.pbf`` and return ``(rest, play, motorways)`` GeoDataFrames (WGS84).
+    """Stream a ``.pbf`` and return ``(rest, play, motorways, places)`` GeoDataFrames.
 
     ``rest`` / ``play`` have columns ``[tags, type, id, geometry]`` — identical to the
     Overpass path's output, so everything downstream is source-agnostic. ``motorways`` is
-    ``[ref, geometry]`` for ``highway=motorway`` ways carrying a ``ref``; it feeds the
-    country-agnostic nearest-motorway fallback for stops without an official ref. Nodes
-    and ways are captured; relations (rare for these tags) are skipped.
+    ``[ref, geometry]`` for ``highway=motorway`` ways carrying a ``ref`` (nearest-ref
+    fallback). ``places`` is ``[place_name, geometry]`` for settlement nodes (nearest-place
+    regional naming of unnamed stops). All in WGS84; relations are skipped.
     """
     import osmium
     from shapely.geometry import Point
@@ -67,15 +69,25 @@ def extract_from_pbf(pbf_path: str | pathlib.Path, cfg: CountryConfig):
     rest_rows: list[dict] = []
     play_rows: list[dict] = []
     motorway_rows: list[dict] = []
+    place_rows: list[dict] = []
 
     fp = (
         osmium.FileProcessor(str(pbf_path))
         .with_locations()
-        .with_filter(osmium.filter.KeyFilter("highway", "leisure"))
+        .with_filter(osmium.filter.KeyFilter("highway", "leisure", "place"))
     )
     for obj in fp:
         tags = dict(obj.tags)
         highway = tags.get("highway")
+
+        # Settlement nodes for regional naming.
+        if tags.get("place") in PLACE_TYPES and obj.is_node():
+            name = tags.get("name")
+            if name:
+                place_rows.append(
+                    {"place_name": name, "geometry": Point(obj.location.lon, obj.location.lat)}
+                )
+            continue
 
         # Motorway centrelines (ways) for the nearest-ref fallback.
         if highway == "motorway" and obj.is_way():
@@ -103,16 +115,9 @@ def extract_from_pbf(pbf_path: str | pathlib.Path, cfg: CountryConfig):
             {"tags": tags, "type": otype, "id": obj.id, "geometry": geom}
         )
 
-    motorways = (
-        _to_gdf(motorway_rows)
-        if not motorway_rows
-        else gpd.GeoDataFrame(
-            {"ref": [r["ref"] for r in motorway_rows]},
-            geometry=[r["geometry"] for r in motorway_rows],
-            crs=4326,
-        )
-    )
-    return _to_gdf(rest_rows), _to_gdf(play_rows), motorways
+    motorways = _named_gdf(motorway_rows, "ref")
+    places = _named_gdf(place_rows, "place_name")
+    return _to_gdf(rest_rows), _to_gdf(play_rows), motorways, places
 
 
 def _to_gdf(rows: list[dict]) -> gpd.GeoDataFrame:
@@ -120,3 +125,10 @@ def _to_gdf(rows: list[dict]) -> gpd.GeoDataFrame:
         return gpd.GeoDataFrame({"tags": [], "type": [], "id": []}, geometry=[], crs=4326)
     geoms = [r.pop("geometry") for r in rows]
     return gpd.GeoDataFrame(rows, geometry=geoms, crs=4326)
+
+
+def _named_gdf(rows: list[dict], col: str) -> gpd.GeoDataFrame:
+    """Build a ``[<col>, geometry]`` GeoDataFrame (empty-safe, keeps a valid CRS)."""
+    values = [r[col] for r in rows]
+    geoms = gpd.GeoSeries([r["geometry"] for r in rows], crs=4326)
+    return gpd.GeoDataFrame({col: values}, geometry=geoms, crs=4326)

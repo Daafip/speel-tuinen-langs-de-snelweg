@@ -13,9 +13,8 @@ from pydantic import BaseModel
 # Family-relevant amenity tags surfaced as booleans in the output.
 AMENITY_TAGS = ["toilets", "restaurant", "fuel", "cafe", "picnic", "wheelchair"]
 
-# Truthful category label for stops that OSM leaves unnamed, so every Maps pin has a
-# title. Keyed by feature_type; the German term matches what the stop actually is.
-FEATURE_LABELS = {"services": "Raststätte", "rest_area": "Rastplatz"}
+# Last-resort English terms when a country provides no localized `labels` in config.
+DEFAULT_LABELS = {"services": "Services", "rest_area": "Rest area"}
 
 # Column order of the canonical (gold) dataset.
 CANONICAL_FIELDS = [
@@ -98,18 +97,30 @@ def _osm_id(row) -> str:
     return f"{otype}/{oid}"
 
 
+def _fallback_name(feature_type: str, place: str | None, labels: dict) -> str:
+    """Localized regional label for an unnamed stop: '<term> <place>', e.g.
+    'Verzorgingsplaats Apeldoorn' (NL) or 'Rastplatz Würzburg' (DE). Falls back to just
+    the localized term when no nearby place is known.
+    """
+    term = labels.get(feature_type) or DEFAULT_LABELS.get(feature_type, "Rest area")
+    return f"{term} {place}" if place else term
+
+
 def to_canonical(
     gdf: gpd.GeoDataFrame,
     country: str,
     retrieved_at: dt.date | None = None,
     official_name_col: str = "official_name",
+    labels: dict | None = None,
 ) -> pd.DataFrame:
     """Map a joined/enriched GeoDataFrame to the canonical schema (sorted by ``id``).
 
     Geometry is reduced to a WGS84 centroid (``lat``/``lon``) for point placement; the
-    GeoJSON exporter keeps full geometry separately.
+    GeoJSON exporter keeps full geometry separately. ``labels`` supplies localized terms
+    for naming stops OSM leaves unnamed (see :func:`_fallback_name`).
     """
     retrieved_at = retrieved_at or dt.date.today()
+    labels = labels or {}
     # Centroid in an equal-area metric CRS, then back to WGS84 (accurate + warning-free).
     centroids = gdf.geometry.to_crs(3035).centroid.to_crs(4326)
     records: list[dict] = []
@@ -118,11 +129,11 @@ def to_canonical(
         osm_id = _osm_id(row)
         otype = row.get("type") or "node"
         feature_type = _tag(tags, "highway") or "rest_area"
-        # Prefer the OSM name, then an official (enrichment) name, then a category label.
+        # Prefer the OSM name, then an official (enrichment) name, then a regional label.
         name = (
             _clean(_tag(tags, "name"))
             or _clean(row.get(official_name_col))
-            or FEATURE_LABELS.get(feature_type, "Rastplatz")
+            or _fallback_name(feature_type, _clean(row.get("place_name")), labels)
         )
         rec = {
             "id": osm_id,
