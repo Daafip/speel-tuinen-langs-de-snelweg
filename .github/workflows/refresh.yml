@@ -1,0 +1,52 @@
+name: refresh-restspots
+
+# Monthly rebuild of the rest-stops-with-playgrounds dataset from a fresh OSM snapshot.
+on:
+  schedule:
+    - cron: "0 3 1 * *"   # 03:00 UTC on the 1st of each month
+  workflow_dispatch:
+    inputs:
+      country:
+        description: "ISO country code to build"
+        default: "DE"
+      source:
+        description: "extraction path: pbf (offline, scales) or overpass (API)"
+        default: "pbf"
+        type: choice
+        options: [pbf, overpass]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          manifest-path: pixi.toml
+          pixi-version: "latest"
+
+      # Path B (pyosmium streaming) is the default: a single Overpass query for a whole
+      # large country times out, whereas the dated .pbf parses offline at bounded memory.
+      - name: Build dataset
+        env:
+          COUNTRY: ${{ github.event.inputs.country || 'DE' }}
+          SOURCE: ${{ github.event.inputs.source || 'pbf' }}
+        run: |
+          pixi run python -m restspots.pipeline fetch    --country "$COUNTRY" --source "$SOURCE"
+          pixi run python -m restspots.pipeline build    --country "$COUNTRY" --source "$SOURCE"
+          pixi run python -m restspots.pipeline export   --country "$COUNTRY"
+          pixi run python -m restspots.pipeline validate --country "$COUNTRY"
+
+      - name: Upload processed dataset
+        uses: actions/upload-artifact@v4
+        with:
+          name: restspots-${{ github.event.inputs.country || 'DE' }}
+          path: data/processed/
+
+      # Optionally publish data/processed/*.geojson to GitHub Pages for a stable
+      # loadGeoJson() URL (see README "Maps JavaScript API" recipe).
