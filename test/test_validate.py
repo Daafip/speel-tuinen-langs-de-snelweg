@@ -23,7 +23,10 @@ def _gold(country="DE"):
             "match_type": ["proximity", "operator_listed"],
             "play_type": ["outdoor", "indoor_soft_play"],
             "verified_source": ["osm", "operator"],
-            "last_verified": [dt.date(2026, 6, 20), dt.date(2025, 1, 1)],  # 2nd is stale
+            "last_verified": [
+                dt.date(2026, 6, 20),
+                dt.date(2025, 1, 1),
+            ],  # 2nd is stale
         },
         geometry=[Point(8.0, 50.0), Point(9.0, 51.0)],
         crs=4326,
