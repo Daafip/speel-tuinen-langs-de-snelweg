@@ -1,27 +1,33 @@
 """Per-country enrichment connectors.
 
-Every connector implements the same tiny interface so it plugs into the country-agnostic
-core by nearest-neighbour match:
+Two kinds, both using the same tiny ``fetch(cache_dir) -> raw`` / ``to_points(raw) -> GeoDataFrame``
+interface, looked up by the keys in a country's config:
 
-    fetch(cache_dir) -> raw
-    to_points(raw)   -> GeoDataFrame[name, ref, geometry]
-
-Connectors are looked up by the keys listed under a country's ``enrichment:`` in
-``config/countries.yml`` via :data:`CONNECTORS`.
+* :data:`CONNECTORS` (``enrichment:``) — nearest-neighbour *name/ref* attachment to OSM stops
+  (e.g. Germany's Autobahn ``parking_lorry``). ``to_points`` -> ``[name, ref, geometry]``.
+* :data:`FACILITY_CONNECTORS` (``facilities:``) — authoritative *playground confirmations* folded
+  in via :func:`restspots.join.apply_facility_seed` (can mark a stop has_playground / add a stop).
+  ``to_points`` -> ``[name, ref, side, play_type, verified_source, seed_id, geometry]``.
 """
 
 from __future__ import annotations
 
 from .. import autobahn
+from . import uk
 
 
 def _autobahn_fetch(cache_dir="data/raw"):
     return autobahn.fetch_all(cache_dir)
 
 
-# key (matches config enrichment list) -> (fetch fn, to_points fn)
+# key (matches config `enrichment:`) -> (fetch fn, to_points fn)
 CONNECTORS: dict[str, tuple] = {
     "autobahn_api": (_autobahn_fetch, autobahn.to_points),
 }
 
-__all__ = ["CONNECTORS"]
+# key (matches config `facilities:`) -> (fetch fn, to_points fn)
+FACILITY_CONNECTORS: dict[str, tuple] = {
+    "uk_facilities": (uk.fetch, uk.to_points),
+}
+
+__all__ = ["CONNECTORS", "FACILITY_CONNECTORS"]

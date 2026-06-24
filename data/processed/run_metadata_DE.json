@@ -1,6 +1,6 @@
 {
   "country": "DE",
-  "osm_snapshot_date": "2026-06-23",
+  "osm_snapshot_date": "2026-06-24",
   "raw_source": "data/raw/germany-latest.osm.pbf",
   "enrichment": [
     "autobahn_api"

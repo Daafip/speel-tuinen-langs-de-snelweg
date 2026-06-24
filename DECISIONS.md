@@ -10,7 +10,7 @@ playground, current snapshot):
 | | stops | | stops | | stops |
 |---|---|---|---|---|---|
 | 🇫🇷 FR | 384 | 🇩🇰 DK | 61 | 🇳🇱 NL | 31 |
-| 🇩🇪 DE | 340 | 🇬🇧 GB | 44 | 🇦🇹 AT | 31 |
+| 🇩🇪 DE | 340 | 🇬🇧 GB | 59 | 🇦🇹 AT | 31 |
 | 🇪🇸 ES | 131 | | | 🇨🇭 CH | 29 |
 | 🇮🇹 IT | 114 | | | 🇧🇪 BE | 20 |
 
@@ -93,6 +93,29 @@ Acceptance requires every row to have a name or a ref. D4's regional naming guar
 this now always passes — but the rule is kept (not softened) so a future regression that drops
 naming is caught.
 
+### D12 — UK: curated facility seed (enumerate-then-verify), not a scraper
+The UK under-counts because its dominant play format is **indoor soft play**, which OSM doesn't
+tag as `leisure=playground` — the spatial join is structurally blind to it
+([`uk_playground_recall_plan.md`](uk_playground_recall_plan.md)). Researched the plan's sources:
+Motorway Services Online / operator pages are hobbyist/commercial (scrape+redistribute is the same
+license wall as D8), and **Wikidata was tested and rejected** (D9-style: 97 MSAs, no playground
+attribute, fewer matches than we already had). **Decision: a small, hand-curated, *attributed*
+seed** ([`src/restspots/enrich/uk.py`](src/restspots/enrich/uk.py), ~17 documented sites:
+Westmorland, Moto, Extra chains, Cornwall) folded in via `apply_facility_seed`:
+- new `facilities:` config key + `FACILITY_CONNECTORS` registry (distinct from name/ref `enrichment:`);
+- new schema fields `play_type` / `side` / `verified_source` / `last_verified`, and `match_type`
+  values `operator_listed` / `mso_listed` so a stop qualifies on a trusted listing with **no OSM
+  geometry** — the indoor-soft-play case;
+- reconciliation: a listing **annotates** an already-matched OSM stop (`verified_source=operator;osm`),
+  **promotes** an unflagged OSM stop (keeping its geometry), or **adds** a synthetic stop if OSM
+  has nothing nearby.
+Result: UK **44 → 59**, with indoor soft play now visible (Cornwall, Donington, Leigh Delamere…).
+Seed coordinates are **approximate / documentation-sourced** (used only to find the nearest OSM
+stop; OSM geometry wins on a match) and carry `last_verified` for the staleness downgrade. A
+**truck-stop guard** (`_is_truckstop`) stops an approximate coordinate from latching onto a
+neighbouring lorry park (caught Tebay → "J38 Truckstop"). Genuine OSM-playground matches on truck
+stops are kept — the guard only blocks *seed* mis-matches.
+
 ### D11 — Environment fix: pin `sqlite` to match `libsqlite`
 The solved env had `sqlite 3.32.3` (2020) shadowing `libsqlite 3.53` — its stale `libsqlite3.so`
 lacked symbols GDAL/pyogrio/`_sqlite3` needed, breaking all file I/O and `pytest-cov`. Pinned
@@ -154,6 +177,15 @@ Ordered roughly by value. Nothing here is required for the current deliverable.
    scale (none of the 10 do meaningfully).
 
 ### Operational
+0. **Re-export the other 9 countries for schema consistency.** D12 added `play_type` / `side` /
+   `verified_source` / `last_verified` to the canonical schema. **GB** was rebuilt with them; the
+   other countries' exports still carry the old columns until rebuilt (`build --source pbf` per
+   country — `.pbf`s are cached, so no re-download). Their new fields are all defaults
+   (`play_type=outdoor`, `verified_source=osm`) since only GB has a facility seed.
+0b. **Verify the UK seed coordinates (D12).** They're documentation-sourced/approximate; confirm
+   each against the operator/MSO before treating `last_verified` as authoritative, and add
+   `play_type` for the genuinely-indoor sites. Re-run quarterly (operator data changes faster than
+   OSM). Other operator/MSO-listed countries could reuse the same `facilities:` mechanism.
 7. **`.pbf` snapshot dating.** Geofabrik's `-latest` URL is mutable; `run_metadata` records the
    download date, but storing the dated filename (e.g. `germany-260621.osm.pbf`) would make
    provenance exact and reruns byte-reproducible.

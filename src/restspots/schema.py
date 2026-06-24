@@ -28,10 +28,14 @@ CANONICAL_FIELDS = [
     "has_playground",
     "playground_count",
     "match_type",
+    "play_type",
+    "side",
     *AMENITY_TAGS,
     "source",
+    "verified_source",
     "osm_url",
     "data_retrieved_at",
+    "last_verified",
 ]
 
 
@@ -48,6 +52,11 @@ class RestStop(BaseModel):
     has_playground: bool = True
     playground_count: int = 0
     match_type: str | None = None
+    # outdoor / indoor_soft_play / both / unknown — the dominant UK format is indoor,
+    # which OSM does not tag as leisure=playground (see uk_playground_recall_plan.md).
+    play_type: str = "unknown"
+    # both / NB / SB / single / unknown — many UK play areas are one-direction only.
+    side: str = "unknown"
     toilets: bool = False
     restaurant: bool = False
     fuel: bool = False
@@ -55,8 +64,12 @@ class RestStop(BaseModel):
     picnic: bool = False
     wheelchair: bool = False
     source: str = "osm"
+    # Which tier(s) confirmed the playground: osm / mso / operator / places (";"-joined).
+    verified_source: str = "osm"
     osm_url: str | None = None
     data_retrieved_at: dt.date | None = None
+    # Freshness of the newest confirmation; drives the staleness downgrade in QA.
+    last_verified: dt.date | None = None
 
 
 def _tag(tags, key):
@@ -135,6 +148,23 @@ def to_canonical(
             or _clean(row.get(official_name_col))
             or _fallback_name(feature_type, _clean(row.get("place_name")), labels)
         )
+        match_type = _clean(row.get("match_type"))
+        # A standalone OSM playground match implies an outdoor play area; authoritative
+        # listings (operator/mso) carry their own play_type (often indoor soft play).
+        osm_match = match_type in ("tag", "contained", "proximity")
+        play_type = _clean(row.get("play_type")) or (
+            "outdoor" if osm_match else "unknown"
+        )
+        verified = _clean(row.get("verified_source")) or "osm"
+        last_verified = row.get("last_verified")
+        if not isinstance(last_verified, dt.date):
+            last_verified = retrieved_at if osm_match else None
+        # Synthetic (seed-added) stops have no real OSM object -> no osm.org URL.
+        osm_url = (
+            f"https://www.openstreetmap.org/{otype}/{row.get('id')}"
+            if otype in ("node", "way", "relation")
+            else None
+        )
         rec = {
             "id": osm_id,
             "name": name,
@@ -146,10 +176,14 @@ def to_canonical(
             or _clean(_tag(tags, "ref")),
             "has_playground": bool(row.get("has_playground", True)),
             "playground_count": int(row.get("playground_count", 0) or 0),
-            "match_type": _clean(row.get("match_type")),
-            "source": "osm",
-            "osm_url": f"https://www.openstreetmap.org/{otype}/{row.get('id')}",
+            "match_type": match_type,
+            "play_type": play_type,
+            "side": _clean(row.get("side")) or "unknown",
+            "source": "osm" if "osm" in verified else verified.split(";")[0],
+            "verified_source": verified,
+            "osm_url": osm_url,
             "data_retrieved_at": retrieved_at,
+            "last_verified": last_verified,
         }
         for tag in AMENITY_TAGS:
             rec[tag] = _truthy(_tag(tags, tag))

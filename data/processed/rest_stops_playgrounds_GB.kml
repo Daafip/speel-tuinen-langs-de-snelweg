@@ -200,288 +200,453 @@ https://www.openstreetmap.org/node/8936595371</description>
             </Point>
         </Placemark>
         <Placemark id="39">
+            <name>Tebay Services (northbound)</name>
+            <description>Motorway: M6
+Playgrounds: 0
+Type: services
+Match: operator_listed
+</description>
+            <Point id="38">
+                <coordinates>-2.5793,54.4432,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="41">
+            <name>Tebay Services (southbound)</name>
+            <description>Motorway: M6
+Playgrounds: 0
+Type: services
+Match: operator_listed
+</description>
+            <Point id="40">
+                <coordinates>-2.5862,54.4358,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="43">
+            <name>Chieveley Services</name>
+            <description>Motorway: M4
+Playgrounds: 0
+Type: services
+Match: mso_listed
+</description>
+            <Point id="42">
+                <coordinates>-1.2876,51.4736,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="45">
+            <name>Beaconsfield Services</name>
+            <description>Motorway: M40
+Playgrounds: 0
+Type: services
+Match: operator_listed
+</description>
+            <Point id="44">
+                <coordinates>-0.636,51.6087,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="47">
+            <name>Peterborough Services</name>
+            <description>Motorway: A1(M)
+Playgrounds: 0
+Type: services
+Match: operator_listed
+</description>
+            <Point id="46">
+                <coordinates>-0.24,52.53,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="49">
+            <name>Baldock Services</name>
+            <description>Motorway: A1(M)
+Playgrounds: 0
+Type: services
+Match: operator_listed
+</description>
+            <Point id="48">
+                <coordinates>-0.19,51.99,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="51">
+            <name>Gloucester Services (northbound)</name>
+            <description>Motorway: M5
+Playgrounds: 0
+Type: services
+Match: operator_listed
+</description>
+            <Point id="50">
+                <coordinates>-2.2336,51.9466,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="53">
+            <name>Gloucester Services (southbound)</name>
+            <description>Motorway: M5
+Playgrounds: 0
+Type: services
+Match: operator_listed
+</description>
+            <Point id="52">
+                <coordinates>-2.2447,51.9386,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="55">
+            <name>Killington Lake Services</name>
+            <description>Motorway: M6
+Playgrounds: 0
+Type: services
+Match: operator_listed
+</description>
+            <Point id="54">
+                <coordinates>-2.6905,54.3247,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="57">
+            <name>Cairn Lodge Services</name>
+            <description>Motorway: M74
+Playgrounds: 0
+Type: services
+Match: operator_listed
+</description>
+            <Point id="56">
+                <coordinates>-3.8003,55.5004,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="59">
+            <name>Gretna Green Services</name>
+            <description>Motorway: A74(M)
+Playgrounds: 0
+Type: services
+Match: operator_listed
+</description>
+            <Point id="58">
+                <coordinates>-3.07,55.0316,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="61">
+            <name>Cornwall Services</name>
+            <description>Motorway: A30
+Playgrounds: 0
+Type: services
+Match: operator_listed
+</description>
+            <Point id="60">
+                <coordinates>-4.8038,50.3897,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="63">
             <name>Services Cranleigh</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/1093516968</description>
-            <Point id="38">
+            <Point id="62">
                 <coordinates>-0.50457,51.140176,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="41">
+        <Placemark id="65">
+            <name>Fenstanton Services</name>
+            <description>Motorway: A14
+Playgrounds: 0
+Type: services
+Match: operator_listed
+https://www.openstreetmap.org/way/128494604</description>
+            <Point id="64">
+                <coordinates>-0.059759,52.293392,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="67">
             <name>Peterborough Services</name>
             <description>Motorway: A605
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/1303632357</description>
-            <Point id="40">
+            <Point id="66">
                 <coordinates>-0.321158,52.531228,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="43">
+        <Placemark id="69">
             <name>Services Malpas Park</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/1379450358</description>
-            <Point id="42">
+            <Point id="68">
                 <coordinates>-3.007536,51.616425,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="45">
+        <Placemark id="71">
             <name>Moto Hilton Park Services</name>
             <description>Motorway: M6
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/197528362</description>
-            <Point id="44">
+            <Point id="70">
                 <coordinates>-2.054885,52.643559,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="47">
+        <Placemark id="73">
             <name>Westside Service Station</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/236058208</description>
-            <Point id="46">
+            <Point id="72">
                 <coordinates>-0.251482,52.579558,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="49">
+        <Placemark id="75">
             <name>Cornwall Services</name>
             <description>Motorway: A391
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/373087329</description>
-            <Point id="48">
+            <Point id="74">
                 <coordinates>-4.816178,50.4257,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="51">
+        <Placemark id="77">
             <name>Cobham Services</name>
             <description>Motorway: M25
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/381250063</description>
-            <Point id="50">
+            <Point id="76">
                 <coordinates>-0.407696,51.304983,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="53">
+        <Placemark id="79">
             <name>M74 Truck Stop</name>
             <description>Motorway: M74
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/383281385</description>
-            <Point id="52">
+            <Point id="78">
                 <coordinates>-3.892013,55.64852,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="55">
+        <Placemark id="81">
             <name>Leicester Forest East Services</name>
             <description>Motorway: M1
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61094048</description>
-            <Point id="54">
+            <Point id="80">
                 <coordinates>-1.205693,52.619074,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="57">
+        <Placemark id="83">
+            <name>Moto Donington Park Services</name>
+            <description>Motorway: M1
+Playgrounds: 0
+Type: services
+Match: operator_listed
+https://www.openstreetmap.org/way/61094302</description>
+            <Point id="82">
+                <coordinates>-1.308038,52.82139,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="85">
             <name>Moto Winchester Services</name>
             <description>Motorway: M3
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61376557</description>
-            <Point id="56">
+            <Point id="84">
                 <coordinates>-1.255093,51.120369,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="59">
+        <Placemark id="87">
             <name>Rownhams Services</name>
             <description>Motorway: M27
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61376755</description>
-            <Point id="58">
+            <Point id="86">
                 <coordinates>-1.448818,50.956627,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="61">
+        <Placemark id="89">
             <name>Rivington Services</name>
             <description>Motorway: M61
 Playgrounds: 2
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61389765</description>
-            <Point id="60">
+            <Point id="88">
                 <coordinates>-2.573769,53.600066,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="63">
+        <Placemark id="91">
             <name>Lancaster Services</name>
             <description>Motorway: M6
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61389851</description>
-            <Point id="62">
+            <Point id="90">
                 <coordinates>-2.759093,53.961443,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="65">
+        <Placemark id="93">
             <name>Moto Cardiff West Services</name>
             <description>Motorway: M4
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61395452</description>
-            <Point id="64">
+            <Point id="92">
                 <coordinates>-3.307904,51.50836,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="67">
+        <Placemark id="95">
             <name>Moto Chieveley Services</name>
             <description>Motorway: A34
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61396542</description>
-            <Point id="66">
+            <Point id="94">
                 <coordinates>-1.310064,51.449348,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="69">
+        <Placemark id="97">
             <name>ExtraMSA Cambridge Services</name>
             <description>Motorway: A14
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61402717</description>
-            <Point id="68">
+            <Point id="96">
                 <coordinates>-0.009743,52.26969,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="71">
+        <Placemark id="99">
             <name>ExtraMSA Beaconsfield Services</name>
             <description>Motorway: M40
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61403366</description>
-            <Point id="70">
+            <Point id="98">
                 <coordinates>-0.628001,51.588806,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="73">
+        <Placemark id="101">
             <name>Moto Cherwell Valley Services</name>
             <description>Motorway: A43
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61403548</description>
-            <Point id="72">
+            <Point id="100">
                 <coordinates>-1.198745,51.949665,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="75">
+        <Placemark id="103">
             <name>Welcome Break Abington Services</name>
             <description>Motorway: A702
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61407175</description>
-            <Point id="74">
+            <Point id="102">
                 <coordinates>-3.695136,55.506932,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="77">
+        <Placemark id="105">
             <name>Moto Stafford North Services</name>
             <description>Motorway: M6
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61460635</description>
-            <Point id="76">
+            <Point id="104">
                 <coordinates>-2.172137,52.885445,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="79">
+        <Placemark id="107">
             <name>Tamworth Services</name>
             <description>Motorway: M42
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61461264</description>
-            <Point id="78">
+            <Point id="106">
                 <coordinates>-1.640903,52.606596,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="81">
+        <Placemark id="109">
             <name>Hopwood Park Services</name>
             <description>Motorway: A441
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/61471433</description>
-            <Point id="80">
+            <Point id="108">
                 <coordinates>-1.947471,52.363687,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="83">
+        <Placemark id="111">
+            <name>Moto Leigh Delamere Westbound</name>
+            <description>Motorway: M4
+Playgrounds: 0
+Type: services
+Match: operator_listed
+https://www.openstreetmap.org/way/63124749</description>
+            <Point id="110">
+                <coordinates>-2.159561,51.509535,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="113">
             <name>Services Buckshaw Village</name>
             <description>Motorway: ?
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/687560222</description>
-            <Point id="82">
+            <Point id="112">
                 <coordinates>-2.658375,53.675234,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="85">
+        <Placemark id="115">
             <name>Skelton Lake Service Station</name>
             <description>Motorway: M1
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/704817026</description>
-            <Point id="84">
+            <Point id="114">
                 <coordinates>-1.471502,53.77317,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="87">
+        <Placemark id="117">
             <name>Rugby Services</name>
             <description>Motorway: A426
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/840486856</description>
-            <Point id="86">
+            <Point id="116">
                 <coordinates>-1.248884,52.410109,0.0</coordinates>
             </Point>
         </Placemark>
-        <Placemark id="89">
+        <Placemark id="119">
             <name>GRIDSERVE Braintree Electric Forecourt</name>
             <description>Motorway: A131
 Playgrounds: 1
 Type: services
 Match: contained
 https://www.openstreetmap.org/way/881223537</description>
-            <Point id="88">
+            <Point id="118">
                 <coordinates>0.521687,51.852667,0.0</coordinates>
             </Point>
         </Placemark>
