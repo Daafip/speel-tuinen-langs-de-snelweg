@@ -1,6 +1,6 @@
 {
   "country": "ES",
-  "osm_snapshot_date": "2026-06-23",
+  "osm_snapshot_date": "2026-06-24",
   "raw_source": "data/raw/spain-latest.osm.pbf",
   "enrichment": [],
   "rows": 131,
