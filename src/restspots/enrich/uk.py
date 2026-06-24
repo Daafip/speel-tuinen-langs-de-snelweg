@@ -27,8 +27,8 @@ SEED_DATE = dt.date(2026, 6, 1)
 # source: "operator" (operator facility pages) / "mso" (Motorway Services Online listing).
 SEED: list[dict] = [
     # Westmorland — indoor AND outdoor play (documented).
-    {"name": "Tebay Services (northbound)", "ref": "M6", "lat": 54.4416, "lon": -2.5836, "side": "NB", "play_type": "both", "source": "operator"},
-    {"name": "Tebay Services (southbound)", "ref": "M6", "lat": 54.4360, "lon": -2.5880, "side": "SB", "play_type": "both", "source": "operator"},
+    {"name": "Tebay Services (northbound)", "ref": "M6", "lat": 54.4432, "lon": -2.5793, "side": "NB", "play_type": "both", "source": "operator"},
+    {"name": "Tebay Services (southbound)", "ref": "M6", "lat": 54.4358, "lon": -2.5862, "side": "SB", "play_type": "both", "source": "operator"},
     {"name": "Gloucester Services (northbound)", "ref": "M5", "lat": 51.9466, "lon": -2.2336, "side": "NB", "play_type": "both", "source": "operator"},
     {"name": "Gloucester Services (southbound)", "ref": "M5", "lat": 51.9386, "lon": -2.2447, "side": "SB", "play_type": "both", "source": "operator"},
     {"name": "Killington Lake Services", "ref": "M6", "lat": 54.3247, "lon": -2.6905, "side": "SB", "play_type": "both", "source": "operator"},

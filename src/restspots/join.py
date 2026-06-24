@@ -161,8 +161,13 @@ def apply_facility_seed(
         mt = f"{source}_listed"
         ridx = nn.loc[idx, "_ridx"] if idx in nn.index else None
 
-        if pd.notna(ridx):
-            rrow = rest_all.iloc[int(ridx)]
+        rrow = rest_all.iloc[int(ridx)] if pd.notna(ridx) else None
+        # A truck/lorry stop is never the family service a seed listing refers to — don't
+        # let an approximate seed coordinate latch onto one; fall through to a synthetic pin.
+        if rrow is not None and _is_truckstop(rrow):
+            rrow = None
+
+        if rrow is not None:
             key = _key(rrow)
             if key in by_key:  # OSM stop already in the dataset -> annotate
                 i = by_key[key]
@@ -213,3 +218,12 @@ def _merge_sources(existing, source: str) -> str:
     have = set() if pd.isna(existing) else {p for p in str(existing).split(";") if p}
     have.add(source)
     return ";".join(sorted(have))
+
+
+_TRUCKSTOP_HINTS = ("truck", "lorry", "hgv")
+
+
+def _is_truckstop(row) -> bool:
+    tags = row.get("tags") if isinstance(row.get("tags"), dict) else {}
+    name = (tags.get("name") or "").lower()
+    return any(h in name for h in _TRUCKSTOP_HINTS)
