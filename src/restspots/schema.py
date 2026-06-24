@@ -152,7 +152,9 @@ def to_canonical(
         # A standalone OSM playground match implies an outdoor play area; authoritative
         # listings (operator/mso) carry their own play_type (often indoor soft play).
         osm_match = match_type in ("tag", "contained", "proximity")
-        play_type = _clean(row.get("play_type")) or ("outdoor" if osm_match else "unknown")
+        play_type = _clean(row.get("play_type")) or (
+            "outdoor" if osm_match else "unknown"
+        )
         verified = _clean(row.get("verified_source")) or "osm"
         last_verified = row.get("last_verified")
         if not isinstance(last_verified, dt.date):

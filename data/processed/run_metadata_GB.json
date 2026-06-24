@@ -3,7 +3,7 @@
   "osm_snapshot_date": "2026-06-24",
   "raw_source": "data/raw/great-britain-latest.osm.pbf",
   "enrichment": [],
-  "rows": 58,
+  "rows": 59,
   "crs_project": 3035,
   "proximity_m": 200.0,
   "contained_buffer_m": 50.0

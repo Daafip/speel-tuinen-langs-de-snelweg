@@ -150,7 +150,11 @@ def apply_facility_seed(
     rest_proj["_ridx"] = range(len(rest_proj))
     seed = seed.reset_index(drop=True)
     nn = gpd.sjoin_nearest(
-        seed.to_crs(PROJ), rest_proj, how="left", max_distance=max_distance, distance_col="_d"
+        seed.to_crs(PROJ),
+        rest_proj,
+        how="left",
+        max_distance=max_distance,
+        distance_col="_d",
     )
     nn = nn[~nn.index.duplicated(keep="first")]
 
@@ -172,7 +176,9 @@ def apply_facility_seed(
             if key in by_key:  # OSM stop already in the dataset -> annotate
                 i = by_key[key]
                 cur = stops.at[i, "verified_source"]
-                base = cur if isinstance(cur, str) and cur else "osm"  # already OSM-confirmed
+                base = (
+                    cur if isinstance(cur, str) and cur else "osm"
+                )  # already OSM-confirmed
                 stops.at[i, "play_type"] = s.get("play_type") or "unknown"
                 stops.at[i, "side"] = s.get("side") or "unknown"
                 stops.at[i, "verified_source"] = _merge_sources(base, source)
@@ -184,11 +190,16 @@ def apply_facility_seed(
                 tags = {**tags, "name": s["name"]}
             new_rows.append(
                 {
-                    "tags": tags, "type": rrow.get("type"), "id": rrow.get("id"),
-                    "geometry": rrow.geometry, "has_playground": True,
-                    "playground_count": 0, "match_type": mt,
+                    "tags": tags,
+                    "type": rrow.get("type"),
+                    "id": rrow.get("id"),
+                    "geometry": rrow.geometry,
+                    "has_playground": True,
+                    "playground_count": 0,
+                    "match_type": mt,
                     "play_type": s.get("play_type") or "unknown",
-                    "side": s.get("side") or "unknown", "verified_source": source,
+                    "side": s.get("side") or "unknown",
+                    "verified_source": source,
                     "last_verified": s.get("last_verified"),
                     "motorway_ref": s.get("ref"),
                 }
@@ -197,12 +208,17 @@ def apply_facility_seed(
             new_rows.append(
                 {
                     "tags": {"highway": "services", "name": s.get("name")},
-                    "type": "seed", "id": s.get("seed_id") or f"{source}-{idx}",
-                    "geometry": s["geometry"], "has_playground": True,
-                    "playground_count": 0, "match_type": mt,
+                    "type": "seed",
+                    "id": s.get("seed_id") or f"{source}-{idx}",
+                    "geometry": s["geometry"],
+                    "has_playground": True,
+                    "playground_count": 0,
+                    "match_type": mt,
                     "play_type": s.get("play_type") or "unknown",
-                    "side": s.get("side") or "unknown", "verified_source": source,
-                    "last_verified": s.get("last_verified"), "motorway_ref": s.get("ref"),
+                    "side": s.get("side") or "unknown",
+                    "verified_source": source,
+                    "last_verified": s.get("last_verified"),
+                    "motorway_ref": s.get("ref"),
                 }
             )
 

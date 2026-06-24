@@ -13,7 +13,10 @@ from restspots.schema import to_canonical
 def _rest_all():
     return gpd.GeoDataFrame(
         {
-            "tags": [{"highway": "rest_area", "name": "Existing"}, {"highway": "services"}],
+            "tags": [
+                {"highway": "rest_area", "name": "Existing"},
+                {"highway": "services"},
+            ],
             "type": ["node", "node"],
             "id": [1, 2],
         },
@@ -78,7 +81,9 @@ def test_seed_annotate_promote_add():
 
 def test_seed_flows_to_canonical():
     out = apply_facility_seed(_rest_all(), _stops(), _seed(), max_distance=2000)
-    df = to_canonical(out, "GB", labels={"services": "Services", "rest_area": "Rest area"})
+    df = to_canonical(
+        out, "GB", labels={"services": "Services", "rest_area": "Rest area"}
+    )
     promoted = df[df["match_type"] == "operator_listed"]
     assert (promoted["has_playground"]).all()
     assert set(promoted["play_type"]) <= {"indoor_soft_play"}
@@ -89,5 +94,7 @@ def test_seed_flows_to_canonical():
 def test_uk_seed_to_points_shape():
     g = uk.to_points(uk.SEED)
     assert len(g) == len(uk.SEED)
-    assert set(["name", "ref", "side", "play_type", "verified_source", "seed_id"]) <= set(g.columns)
+    assert set(
+        ["name", "ref", "side", "play_type", "verified_source", "seed_id"]
+    ) <= set(g.columns)
     assert g.crs.to_epsg() == 4326
