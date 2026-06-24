@@ -128,6 +128,7 @@ GB:
   playground_proximity_m: 200
   playground_contained_buffer_m: 50
   enrichment: []   # National Highways SRN refs (England only) could enrich later
+  facilities: [uk_facilities]   # curated indoor-soft-play seed (OSM is blind to it)
   labels:
     services: Services
     rest_area: Rest area

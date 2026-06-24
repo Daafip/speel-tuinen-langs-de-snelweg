@@ -67,6 +67,27 @@ def _gather_enrichment(cfg: CountryConfig, raw_dir: pathlib.Path):
     return gpd.GeoDataFrame(pd.concat(frames, ignore_index=True), crs=4326)
 
 
+def _gather_facilities(cfg: CountryConfig, raw_dir: pathlib.Path):
+    """Fetch + point-ify every configured facility connector into one GeoDataFrame, or None."""
+    import geopandas as gpd
+    import pandas as pd
+
+    from .enrich import FACILITY_CONNECTORS
+
+    frames = []
+    for key in cfg.facilities:
+        if key not in FACILITY_CONNECTORS:
+            print(f"  ! unknown facility connector {key!r}, skipping", file=sys.stderr)
+            continue
+        fetch_fn, to_points = FACILITY_CONNECTORS[key]
+        pts = to_points(fetch_fn(str(raw_dir)))
+        if len(pts):
+            frames.append(pts)
+    if not frames:
+        return None
+    return gpd.GeoDataFrame(pd.concat(frames, ignore_index=True), crs=4326)
+
+
 # ------------------------------------------------------------------------ commands
 def cmd_fetch(args) -> int:
     cfg = get_country(args.country, args.config)
@@ -165,6 +186,18 @@ def cmd_build(args) -> int:
         if places is not None and len(places):
             stops = join.attach_nearest(
                 stops, places[["place_name", "geometry"]], ["place_name"], 15000.0
+            )
+
+    # Authoritative facility seed (e.g. UK indoor soft play): confirm/promote/add stops the
+    # OSM spatial join can't see. Runs on the full rest-stop set, so it works even if no OSM
+    # playground matched at all.
+    if cfg.facilities:
+        seed = _gather_facilities(cfg, p["raw"])
+        if seed is not None:
+            before = len(stops)
+            stops = join.apply_facility_seed(rest, stops, seed)
+            print(
+                f"[build] facility seed: {len(seed)} listings -> stops {before} -> {len(stops)}"
             )
 
     df = schema.to_canonical(
