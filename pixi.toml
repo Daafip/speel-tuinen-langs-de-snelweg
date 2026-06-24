@@ -13,9 +13,10 @@ license-file = "LICENSE"
 install = "pre-commit install"
 pre-commit = "pre-commit run --all-files"
 
-# Data pipeline (default country DE)
-fetch    = "python -m restspots.pipeline fetch    --country DE"
-build    = "python -m restspots.pipeline build    --country DE"
+# Data pipeline (default country DE). Path B (pyosmium/.pbf) is used because a single
+# Overpass query for a whole large country times out — see DECISIONS.md D2.
+fetch    = "python -m restspots.pipeline fetch    --country DE --source pbf"
+build    = "python -m restspots.pipeline build    --country DE --source pbf"
 export   = "python -m restspots.pipeline export   --country DE"
 validate = "python -m restspots.pipeline validate --country DE"
 all      = { depends-on = ["fetch", "build", "export", "validate"] }

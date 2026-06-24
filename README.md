@@ -1,8 +1,8 @@
 # Speeltuinen langs de snelweg — rest stops with playgrounds
 
 Find highway rest stops that have a playground and export them as a clean dataset that
-drops straight into a Google Maps layer. Germany ships first; adding a country is a
-config change, not a rewrite.
+drops straight into a Google Maps layer. Ships with **10 countries** (DE, FR, ES, IT, DK,
+GB, NL, AT, CH, BE); adding another is a config change, not a rewrite.
 
 OpenStreetMap is the universal backbone (same tags everywhere, free API, full geometry);
 national sources such as the **Autobahn GmbH API** are optional enrichment layered on
@@ -28,10 +28,13 @@ The bronze/silver/gold layering is what makes it reproducible: re-running the jo
 changing a buffer radius never re-hits an API, and any output traces back to a dated raw
 snapshot recorded in `run_metadata_<country>.json`.
 
-A rest stop qualifies via one of three rules, recorded in `match_type` for later QA:
+A rest stop qualifies via one of these rules, recorded in `match_type` for later QA:
 `tag` (the stop carries `playground=yes`), `contained` (a playground polygon falls inside
-an area-mapped stop), or `proximity` (a playground lies within a buffer of a point-mapped
-stop — the common case).
+an area-mapped stop), `proximity` (a playground within a buffer of a point-mapped stop —
+the common case), or `operator_listed` / `mso_listed` (an authoritative facility listing,
+used where OSM is blind — e.g. UK indoor soft play). The `play_type` field
+(`outdoor` / `indoor_soft_play` / `both`) and `verified_source` / `last_verified` record
+*what kind* of play and *how it was confirmed*.
 
 ## Usage
 
@@ -50,8 +53,8 @@ pixi run python -m restspots.pipeline fetch    --country NL
 pixi run python -m restspots.pipeline build    --country NL
 ```
 
-`pixi run all` chains fetch → build → export → validate (Overpass path) for the default
-country. Outputs land in `data/processed/`:
+`pixi run all` chains fetch → build → export → validate for the default country (DE, via
+Path B). Outputs land in `data/processed/`:
 `rest_stops_playgrounds_<C>.geojson` / `.kml` / `.csv` (+ `run_metadata_<C>.json`).
 
 **Extraction paths**: `--source overpass` (default) hits the Overpass API — quick and

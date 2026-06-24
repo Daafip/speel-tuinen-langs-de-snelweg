@@ -6,8 +6,14 @@ proximity audit) plus a list of hard failures that should block a release.
 
 from __future__ import annotations
 
+import datetime as dt
+
 import geopandas as gpd
 import pandas as pd
+
+# A confirmation older than this is treated as stale (plan §7 currency note). Operator/MSO
+# facility data changes faster than OSM, so a stale "yes" is worse than an honest "unknown".
+STALE_AFTER_DAYS = 180
 
 # Rough WGS84 bounding boxes per country for a coarse coordinate sanity check.
 COUNTRY_BBOX = {
@@ -24,8 +30,23 @@ COUNTRY_BBOX = {
 }
 
 
-def validate(gdf: gpd.GeoDataFrame, df: pd.DataFrame, country: str) -> dict:
+def _stale_count(df: pd.DataFrame, today: dt.date) -> int:
+    """Rows whose newest confirmation is older than ``STALE_AFTER_DAYS`` (a soft signal)."""
+    if "last_verified" not in df.columns:
+        return 0
+    lv = pd.to_datetime(df["last_verified"], errors="coerce")
+    cutoff = pd.Timestamp(today) - pd.Timedelta(days=STALE_AFTER_DAYS)
+    return int((lv < cutoff).sum())
+
+
+def validate(
+    gdf: gpd.GeoDataFrame,
+    df: pd.DataFrame,
+    country: str,
+    today: dt.date | None = None,
+) -> dict:
     """Run QA checks. ``report["failures"]`` being empty means it passes acceptance."""
+    today = today or dt.date.today()
     failures: list[str] = []
     n = len(df)
 
@@ -61,10 +82,13 @@ def validate(gdf: gpd.GeoDataFrame, df: pd.DataFrame, country: str) -> dict:
                 f"{out_of_bbox} rows fall outside the {country} bounding box"
             )
 
-    by_match = df["match_type"].value_counts(dropna=False).to_dict() if n else {}
-    by_ref = (
-        df["motorway_ref"].value_counts(dropna=True).head(15).to_dict() if n else {}
-    )
+    def _counts(col: str, top: int | None = None, dropna: bool = False) -> dict:
+        if not n or col not in df.columns:
+            return {}
+        vc = df[col].value_counts(dropna=dropna)
+        if top:
+            vc = vc.head(top)
+        return {str(k): int(v) for k, v in vc.items()}
 
     return {
         "country": country,
@@ -72,8 +96,11 @@ def validate(gdf: gpd.GeoDataFrame, df: pd.DataFrame, country: str) -> dict:
         "geometry_valid": geom_valid,
         "geometry_nonempty": geom_nonempty,
         "out_of_bbox": out_of_bbox,
-        "by_match_type": {str(k): int(v) for k, v in by_match.items()},
-        "by_motorway_ref": {str(k): int(v) for k, v in by_ref.items()},
+        "by_match_type": _counts("match_type"),
+        "by_play_type": _counts("play_type"),
+        "by_verified_source": _counts("verified_source"),
+        "by_motorway_ref": _counts("motorway_ref", top=15, dropna=True),
+        "stale_confirmations": _stale_count(df, today),
         "failures": failures,
         "passed": not failures,
     }
