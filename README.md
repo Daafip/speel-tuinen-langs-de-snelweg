@@ -1,5 +1,7 @@
 # Speeltuinen langs de snelweg — rest stops with playgrounds
 
+[Maps viewer](https://www.google.com/maps/d/viewer?mid=101KH4j_mj8jng7Xi4PlIGAhmR_01HOU)
+
 Find highway rest stops that have a playground and export them as a clean dataset that
 drops straight into a Google Maps layer. Ships with **10 countries** (DE, FR, ES, IT, DK,
 GB, NL, AT, CH, BE); adding another is a config change, not a rewrite.
@@ -51,11 +53,28 @@ pixi run python -m restspots.pipeline validate --country DE
 # Small countries: the Overpass API path (the default) works fine, no download:
 pixi run python -m restspots.pipeline fetch    --country NL
 pixi run python -m restspots.pipeline build    --country NL
+
+# Interactive map: a standalone folium/Leaflet HTML you can open in a browser.
+pixi run python -m restspots.pipeline map      --country NL    # one country
+pixi run map                                                   # --country ALL combined
 ```
 
 `pixi run all` chains fetch → build → export → validate for the default country (DE, via
 Path B). Outputs land in `data/processed/`:
 `rest_stops_playgrounds_<C>.geojson` / `.kml` / `.csv` (+ `run_metadata_<C>.json`).
+
+The optional `map` stage reads the gold dataset and writes a self-contained
+`rest_stops_playgrounds_<C>.html` (or `rest_stops_playgrounds_map.html` for `ALL`): an
+interactive Leaflet map with clustered markers coloured by `play_type` and a popup per
+stop. It's a browser companion to the Google exports — no network, gold file only.
+
+The combined EU map is published to **GitHub Pages** by
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml): it serves the committed
+`rest_stops_playgrounds_map.html` as `index.html` (no rebuild), alongside the per-country
+GeoJSON (stable URLs for the Maps-JS `loadGeoJson()` recipe below). Regenerate the map
+locally with `pixi run map` and commit it before pushing. Enable Pages once under
+**Settings → Pages → Build and deployment → Source: GitHub Actions**; thereafter every
+push to `main` that updates that file refreshes the live page.
 
 **Extraction paths**: `--source overpass` (default) hits the Overpass API — quick and
 download-free, best for small/medium areas; `--source pbf` parses a dated Geofabrik

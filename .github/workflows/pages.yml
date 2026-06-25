@@ -1,0 +1,56 @@
+name: publish-map
+
+# Publish the combined EU folium map to GitHub Pages. It serves the committed
+# rest_stops_playgrounds_map.html as-is — no rebuild — so regenerate it locally with
+# `pixi run map` and commit before pushing. A push that changes that file (or a manual
+# dispatch) refreshes the live page.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/processed/rest_stops_playgrounds_map.html"
+      - "data/processed/*.geojson"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+# Permissions the deploy-pages action needs.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment; newer pushes supersede in-flight runs.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      # Serve the committed map as-is. Assemble the publish root: the combined map as the
+      # landing page, plus the per-country GeoJSON so loadGeoJson() has stable URLs.
+      - name: Assemble site
+        run: |
+          mkdir -p site
+          cp data/processed/rest_stops_playgrounds_map.html site/index.html
+          cp data/processed/rest_stops_playgrounds_*.geojson site/ || true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
