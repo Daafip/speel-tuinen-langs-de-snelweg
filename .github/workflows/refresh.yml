@@ -48,5 +48,5 @@ jobs:
           name: restspots-${{ github.event.inputs.country || 'DE' }}
           path: data/processed/
 
-      # Optionally publish data/processed/*.geojson to GitHub Pages for a stable
-      # loadGeoJson() URL (see README "Maps JavaScript API" recipe).
+      # The combined EU map and the *.geojson are published to GitHub Pages by the
+      # separate `pages.yml` workflow (it regenerates from the committed gold data).

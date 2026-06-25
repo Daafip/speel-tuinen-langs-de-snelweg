@@ -237,6 +237,44 @@ def cmd_export(args) -> int:
     return 0
 
 
+def cmd_map(args) -> int:
+    """Render an interactive folium HTML map from the gold dataset(s).
+
+    ``--country ALL`` combines every ``*.gold.geojson`` in the processed dir into one
+    map; otherwise it maps the single requested country.
+    """
+    p = _paths(args)
+    import geopandas as gpd
+    import pandas as pd
+
+    from . import mapview
+
+    if args.country.upper() == "ALL":
+        gold_files = sorted(
+            p["processed"].glob("rest_stops_playgrounds_*.gold.geojson")
+        )
+        if not gold_files:
+            raise FileNotFoundError(
+                f"No gold datasets in {p['processed']}/. Run `build` first."
+            )
+        frames = [gpd.read_file(f) for f in gold_files]
+        gdf = gpd.GeoDataFrame(pd.concat(frames, ignore_index=True), crs=frames[0].crs)
+        out = p["processed"] / "rest_stops_playgrounds_map.html"
+        title = "Rest stops with playgrounds"
+    else:
+        cfg = get_country(args.country, args.config)
+        gold_path = _gold_path(p["processed"], cfg.iso)
+        if not gold_path.exists():
+            raise FileNotFoundError(f"{gold_path} missing. Run `build` first.")
+        gdf = gpd.read_file(gold_path)
+        out = p["processed"] / f"rest_stops_playgrounds_{cfg.iso}.html"
+        title = f"Rest stops with playgrounds — {cfg.iso}"
+
+    path = mapview.write_map(gdf, out, title=title)
+    print(f"[map] {len(gdf)} stops -> {path}")
+    return 0
+
+
 def cmd_validate(args) -> int:
     cfg = get_country(args.country, args.config)
     p = _paths(args)
@@ -284,6 +322,7 @@ COMMANDS = {
     "fetch": cmd_fetch,
     "build": cmd_build,
     "export": cmd_export,
+    "map": cmd_map,
     "validate": cmd_validate,
 }
 
