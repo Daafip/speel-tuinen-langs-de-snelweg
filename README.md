@@ -1,6 +1,7 @@
 # Speeltuinen langs de snelweg — rest stops with playgrounds
 
 [Google Maps viewer](https://www.google.com/maps/d/viewer?mid=101KH4j_mj8jng7Xi4PlIGAhmR_01HOU)
+
 [OSM map](https://daafip.github.io/speel-tuinen-langs-de-snelweg/)
 
 Find highway rest stops that have a playground and export them as a clean dataset that
